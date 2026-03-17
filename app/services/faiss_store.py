@@ -1,7 +1,7 @@
 """
 FAISS vector store: fast similarity search with incremental updates.
 - Default: IVF Flat (IndexIVFFlat) over L2-normalized vectors (cosine similarity).
-- Fallback to FlatIP when vector数量较少未达 (FAISS_MIN_TRAIN) 或 faiss 不可用。
+- Fallback to FlatIP when vector数量较少（未达 FAISS_MIN_TRAIN）或 faiss 不可用。
 - Atomic snapshot: write to .tmp then rename; version file for process-level freshness.
 - Incremental add_chunks_to_index(doc_id); full rebuild on delete/update.
 - Thread-safe; other processes reload when on-disk version is newer.
