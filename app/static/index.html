@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI RAG System</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title">AI RAG System</div>
+          <div class="brand__subtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <div class="header__meta">
+          <span class="pill" id="apiBasePill"></span>
+          <button class="btn btn--ghost" id="btnReload">刷新</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container grid">
+      <section class="card">
+        <div class="card__title">系统状态</div>
+        <div class="row row--gap">
+          <button class="btn" id="btnHealth">/health</button>
+          <button class="btn" id="btnIndex">/health/index</button>
+        </div>
+        <pre class="pre" id="healthOut">点击上面的按钮查看状态…</pre>
+      </section>
+
+      <section class="card">
+        <div class="card__title">检索问答</div>
+        <div class="field">
+          <label class="label" for="queryInput">问题</label>
+          <textarea id="queryInput" class="input" rows="3" placeholder="例如：这套系统支持哪些存储后端？"></textarea>
+        </div>
+        <div class="row row--between row--gap">
+          <label class="check">
+            <input type="checkbox" id="useLlm" checked />
+            <span>使用 LLM 生成回答</span>
+          </label>
+          <button class="btn btn--primary" id="btnSearch">搜索</button>
+        </div>
+        <div class="split">
+          <div>
+            <div class="subTitle">回答</div>
+            <div class="answer" id="answerOut">—</div>
+          </div>
+          <div>
+            <div class="subTitle">Top-K 结果</div>
+            <div class="results" id="resultsOut"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card card--span2">
+        <div class="card__title">文档管理</div>
+        <div class="grid2">
+          <div class="card card--inner">
+            <div class="card__title card__title--sm">新增文档</div>
+            <div class="field">
+              <label class="label" for="docTitle">标题</label>
+              <input id="docTitle" class="input" placeholder="文档标题" />
+            </div>
+            <div class="field">
+              <label class="label" for="docContent">内容</label>
+              <textarea id="docContent" class="input" rows="10" placeholder="粘贴或输入文档内容…"></textarea>
+            </div>
+            <div class="row row--gap">
+              <button class="btn btn--primary" id="btnCreateDoc">创建</button>
+              <button class="btn btn--ghost" id="btnClearCreate">清空</button>
+            </div>
+            <div class="hint" id="createHint"></div>
+          </div>
+
+          <div class="card card--inner">
+            <div class="row row--between row--gap">
+              <div class="card__title card__title--sm">文档列表</div>
+              <button class="btn" id="btnLoadDocs">刷新列表</button>
+            </div>
+            <div class="field">
+              <label class="label" for="docFilter">过滤</label>
+              <input id="docFilter" class="input" placeholder="按标题/内容关键字过滤…" />
+            </div>
+            <div class="docs" id="docsOut"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted">前端为纯静态单页，直接调用 FastAPI 接口。</div>
+        <div class="muted">Tips: 先创建几篇文档，再进行检索问答效果更好。</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

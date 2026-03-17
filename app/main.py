@@ -3,13 +3,18 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.db import init_db
 from app.routers import health, documents, search
 from app.services.faiss_store import ensure_index
 from app.services.index_queue import start_index_worker
+from pathlib import Path
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,10 +48,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
 app.include_router(health.router)
 app.include_router(documents.router)
 app.include_router(search.router, prefix="/search", tags=["search"])
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to AI RAG system"}
+    index = STATIC_DIR / "index.html"
+    if index.exists():
+        return FileResponse(index)
+    return {"message": "Welcome to AI RAG system"}  # fallback when frontend not built
