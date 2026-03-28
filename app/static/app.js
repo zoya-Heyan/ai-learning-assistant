@@ -239,25 +239,137 @@ async function copyMarkdown(preId) {
 }
 
 async function doWrongQuestions() {
-  const raw_text = $("wrongInput").value.trim();
-  if (!raw_text) throw new Error("请粘贴错题材料");
+  const source_text = $("wrongInput").value.trim();
+  if (!source_text) throw new Error("请粘贴学习材料");
   $("wrongMeta").textContent = "生成中…";
   $("wrongOut").hidden = true;
-  $("btnWrongCopy").hidden = true;
+  $("wrongPreview").hidden = true;
+  $("wrongActions").hidden = true;
+
   const use_knowledge_base = $("wrongUseKb").checked;
   const kb_query = $("wrongKbQuery").value.trim() || null;
   const top_k = Number($("wrongTopK").value) || 5;
-  const payload = await api("/tools/wrong-questions", {
+  const payload = await api("/tools/generate-questions", {
     method: "POST",
-    body: { raw_text, use_knowledge_base, kb_query, top_k },
+    body: { source_text, use_knowledge_base, kb_query, top_k },
   });
-  $("wrongOut").textContent = payload?.markdown ?? "—";
-  $("wrongOut").hidden = false;
-  $("btnWrongCopy").hidden = false;
-  let meta = "完成";
+  const md = payload?.markdown ?? "—";
+  $("wrongOut").textContent = md;
+  const cleanMd = md.replace(/```(?:markdown|md)?\n?([\s\S]*?)```/gi, "$1").replace(/^```\s*$/gm, "").trim();
+
+  if (typeof marked !== "undefined") {
+    $("wrongPreview").innerHTML = marked.parse(cleanMd);
+    $("wrongPreview").hidden = false;
+    $("wrongOut").hidden = true;
+    setWrongView("preview");
+  } else {
+    $("wrongOut").hidden = false;
+    setWrongView("raw");
+  }
+  $("wrongActions").hidden = false;
+
+  let meta = "习题已生成";
   if (use_knowledge_base) meta += ` · 知识库命中 ${payload.kb_hits ?? 0} 条`;
   $("wrongMeta").textContent = meta;
-  toast("错题本已生成", "ok");
+
+  renderWrongRefs(payload?.top_k_results || []);
+  toast("习题已生成", "ok");
+}
+
+function setWrongView(view) {
+  $("btnWrongView")?.classList.toggle("btn--active", view === "preview");
+  $("btnWrongRaw")?.classList.toggle("btn--active", view === "raw");
+  if (view === "preview") {
+    $("wrongPreview").hidden = false;
+    $("wrongOut").hidden = true;
+  } else {
+    $("wrongPreview").hidden = true;
+    $("wrongOut").hidden = false;
+  }
+}
+
+function renderWrongRefs(results) {
+  const el = $("wrongRefs");
+  if (!el || !results.length) { el && (el.textContent = ""); return; }
+  const titles = results.slice(0, 3).map((r) => r.document_title || `#${r.document_id}`).join(", ");
+  el.textContent = titles + (results.length > 3 ? ` +${results.length - 3}` : "");
+  el.title = results.map((r) => `${r.document_title || r.document_id}: ${(r.content_preview || "").slice(0, 60)}…`).join("\n");
+}
+
+async function doAnalysis() {
+  const question = $("analysisQuestion").value.trim();
+  if (!question) throw new Error("请输入题目内容");
+  $("analysisMeta").textContent = "解析中…";
+  $("analysisOut").hidden = true;
+  $("analysisPreview").hidden = true;
+  $("analysisActions").hidden = true;
+
+  const answer = $("analysisAnswer").value.trim() || null;
+  const payload = await api("/tools/analyze-question", {
+    method: "POST",
+    body: { question, answer },
+  });
+  const md = payload?.markdown ?? "—";
+  $("analysisOut").textContent = md;
+  const cleanMd = md.replace(/```(?:markdown|md)?\n?([\s\S]*?)```/gi, "$1").replace(/^```\s*$/gm, "").trim();
+
+  if (typeof marked !== "undefined") {
+    $("analysisPreview").innerHTML = marked.parse(cleanMd);
+    $("analysisPreview").hidden = false;
+    $("analysisOut").hidden = true;
+    setAnalysisView("preview");
+  } else {
+    $("analysisOut").hidden = false;
+    setAnalysisView("raw");
+  }
+  $("analysisActions").hidden = false;
+  $("analysisMeta").textContent = "解析完成";
+  toast("解析完成", "ok");
+}
+
+function setAnalysisView(view) {
+  $("btnAnalysisView")?.classList.toggle("btn--active", view === "preview");
+  $("btnAnalysisRaw")?.classList.toggle("btn--active", view === "raw");
+  if (view === "preview") {
+    $("analysisPreview").hidden = false;
+    $("analysisOut").hidden = true;
+  } else {
+    $("analysisPreview").hidden = true;
+    $("analysisOut").hidden = false;
+  }
+}
+
+function clearAnalysisDraft() {
+  $("analysisQuestion").value = "";
+  $("analysisAnswer").value = "";
+  $("analysisOut").textContent = "";
+  $("analysisOut").hidden = true;
+  $("analysisPreview").innerHTML = "";
+  $("analysisPreview").hidden = true;
+  $("analysisActions").hidden = true;
+  $("analysisMeta").textContent = "";
+}
+
+function clearWrongDraft() {
+  $("wrongInput").value = "";
+  $("wrongOut").textContent = "";
+  $("wrongOut").hidden = true;
+  $("wrongActions").hidden = true;
+  $("wrongMeta").textContent = "";
+  $("wrongRefs").textContent = "";
+}
+
+async function downloadMarkdown(text, filename) {
+  const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast(`已下载：${filename}`, "ok");
 }
 
 async function doMarkdownNotes() {
@@ -265,18 +377,112 @@ async function doMarkdownNotes() {
   if (!topic) throw new Error("请输入主题或关键词");
   $("notesMeta").textContent = "检索并生成中…";
   $("notesOut").hidden = true;
-  $("btnNotesCopy").hidden = true;
+  $("notesPreview").hidden = true;
+  $("notesActions").hidden = true;
   const top_k = Number($("notesTopK").value) || 6;
   const payload = await api("/tools/markdown-notes", {
     method: "POST",
     body: { topic, top_k },
   });
-  $("notesOut").textContent = payload?.markdown ?? "—";
+  const md = payload?.markdown ?? "—";
+  $("notesOut").textContent = md;
   $("notesOut").hidden = false;
-  $("btnNotesCopy").hidden = false;
+  $("notesActions").hidden = false;
   const n = (payload?.top_k_results || []).length;
   $("notesMeta").textContent = `检索到 ${n} 条片段 · 已生成 Markdown`;
+
+  saveNotesHistory(topic);
+  saveNotesDraft(topic, md);
+
+  if (typeof marked !== "undefined") {
+    $("notesPreview").innerHTML = marked.parse(md);
+    $("notesPreview").hidden = false;
+    $("notesOut").hidden = true;
+    setActiveView("preview");
+  } else {
+    $("notesOut").hidden = false;
+    $("notesPreview").hidden = true;
+    setActiveView("raw");
+  }
+
+  renderNotesRefs(payload?.top_k_results || []);
   toast("笔记已生成", "ok");
+}
+
+function setActiveView(view) {
+  $("btnNotesView")?.classList.toggle("btn--active", view === "preview");
+  $("btnNotesRaw")?.classList.toggle("btn--active", view === "raw");
+}
+
+function renderNotesRefs(results) {
+  const el = $("notesRefs");
+  if (!el || !results.length) { el && (el.textContent = ""); return; }
+  const titles = results.slice(0, 3).map((r) => r.document_title || `#${r.document_id}`).join(", ");
+  el.textContent = titles + (results.length > 3 ? ` +${results.length - 3}` : "");
+  el.title = results.map((r) => `${r.document_title || r.document_id}: ${(r.content_preview || "").slice(0, 60)}…`).join("\n");
+}
+
+function saveNotesHistory(topic) {
+  try {
+    const raw = localStorage.getItem("notes_history") || "[]";
+    const arr = JSON.parse(raw);
+    const filtered = arr.filter((t) => t !== topic);
+    const updated = [topic, ...filtered].slice(0, 20);
+    localStorage.setItem("notes_history", JSON.stringify(updated));
+    renderNotesHistory();
+  } catch {}
+}
+
+function renderNotesHistory() {
+  try {
+    const raw = localStorage.getItem("notes_history") || "[]";
+    const arr = JSON.parse(raw);
+    const dl = $("notesHistory");
+    if (!dl) return;
+    dl.innerHTML = arr.map((t) => `<option value="${escapeHtml(t)}">`).join("");
+  } catch {}
+}
+
+function saveNotesDraft(topic, md) {
+  try {
+    localStorage.setItem("notes_draft", JSON.stringify({ topic, md, ts: Date.now() }));
+  } catch {}
+}
+
+function loadNotesDraft() {
+  try {
+    const raw = localStorage.getItem("notes_draft");
+    if (!raw) return;
+    const { topic, md } = JSON.parse(raw);
+    if (!topic || !md) return;
+    if (Date.now() - (JSON.parse(raw).ts || 0) > 7 * 24 * 60 * 60 * 1000) {
+      localStorage.removeItem("notes_draft");
+      return;
+    }
+    $("notesTopic").value = topic;
+    $("notesOut").textContent = md;
+    $("notesOut").hidden = false;
+    $("notesActions").hidden = false;
+    $("notesMeta").textContent = "（上次生成的笔记已自动恢复）";
+    if (typeof marked !== "undefined") {
+      $("notesPreview").innerHTML = marked.parse(md);
+      $("notesPreview").hidden = false;
+      $("notesOut").hidden = true;
+      setActiveView("preview");
+    }
+    renderNotesRefs([]);
+  } catch {}
+}
+
+function clearNotesDraft() {
+  $("notesTopic").value = "";
+  $("notesOut").textContent = "";
+  $("notesOut").hidden = true;
+  $("notesPreview").innerHTML = "";
+  $("notesPreview").hidden = true;
+  $("notesActions").hidden = true;
+  $("notesMeta").textContent = "";
+  localStorage.removeItem("notes_draft");
 }
 
 async function doSearch() {
@@ -365,20 +571,56 @@ function bindEvents() {
   $("wrongUseKb").addEventListener("change", () => {
     $("wrongKbRow").classList.toggle("is-hidden", !$("wrongUseKb").checked);
   });
+  $("btnWrongView").addEventListener("click", () => setWrongView("preview"));
+  $("btnWrongRaw").addEventListener("click", () => setWrongView("raw"));
   $("btnWrongGo").addEventListener("click", () =>
     doWrongQuestions().catch((e) => {
       $("wrongMeta").textContent = e.message;
       toast(e.message, "bad");
     }),
   );
+  $("btnWrongClear").addEventListener("click", clearWrongDraft);
+  $("btnWrongCopy").addEventListener("click", () => copyMarkdown("wrongOut"));
+  $("btnWrongDownload").addEventListener("click", () => {
+    const md = $("wrongOut").textContent;
+    const filename = `习题_${Date.now()}.md`;
+    downloadMarkdown(md, filename);
+  });
   $("btnNotesGo").addEventListener("click", () =>
     doMarkdownNotes().catch((e) => {
       $("notesMeta").textContent = e.message;
       toast(e.message, "bad");
     }),
   );
-  $("btnWrongCopy").addEventListener("click", () => copyMarkdown("wrongOut"));
+  $("btnNotesClear").addEventListener("click", clearNotesDraft);
   $("btnNotesCopy").addEventListener("click", () => copyMarkdown("notesOut"));
+  $("btnNotesDownload").addEventListener("click", () => {
+    const md = $("notesOut").textContent;
+    const topic = $("notesTopic").value.trim() || "笔记";
+    const filename = `${topic.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, "_")}.md`;
+    downloadMarkdown(md, filename);
+  });
+  $("btnNotesView").addEventListener("click", () => {
+    $("notesPreview").hidden = false;
+    $("notesOut").hidden = true;
+    setActiveView("preview");
+  });
+  $("btnNotesRaw").addEventListener("click", () => {
+    $("notesPreview").hidden = true;
+    $("notesOut").hidden = false;
+    setActiveView("raw");
+  });
+  $("btnAnalysisGo").addEventListener("click", () =>
+    doAnalysis().catch((e) => {
+      $("analysisMeta").textContent = e.message;
+      toast(e.message, "bad");
+    }),
+  );
+  $("btnAnalysisClear").addEventListener("click", clearAnalysisDraft);
+  $("btnAnalysisView").addEventListener("click", () => setAnalysisView("preview"));
+  $("btnAnalysisRaw").addEventListener("click", () => setAnalysisView("raw"));
+  $("btnAnalysisCopy").addEventListener("click", () => copyMarkdown("analysisOut"));
+  $("btnWrongCopy").addEventListener("click", () => copyMarkdown("wrongOut"));
 
   $("docsOut").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-action]");
@@ -426,6 +668,8 @@ function init() {
   setApiBase(state.apiBase);
   bindEvents();
   syncQueryCharCount();
+  renderNotesHistory();
+  loadNotesDraft();
   loadDocs().catch(() => {});
 }
 
