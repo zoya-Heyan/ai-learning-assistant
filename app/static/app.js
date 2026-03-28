@@ -117,6 +117,30 @@ const I18N = {
     draftRestored: "（上次生成的笔记已自动恢复）",
     switchLight: "切换到浅色模式",
     switchDark: "切换到深色模式",
+    studyPlanTitle: "📅 学习计划生成",
+    studyPlanLead: "根据你的水平和目标，生成个性化周学习计划",
+    studyPlanTopic: "学习主题",
+    studyPlanLevel: "用户水平",
+    studyPlanDuration: "学习周期（周）",
+    studyPlanHours: "每天学习小时数",
+    studyPlanStyle: "学习风格",
+    studyPlanKnown: "已掌握主题（逗号分隔）",
+    studyPlanWeak: "薄弱主题（逗号分隔）",
+    levelBeginner: "初级",
+    levelIntermediate: "中级",
+    levelAdvanced: "高级",
+    styleHandsOn: "实践动手",
+    styleVisual: "视觉图形",
+    styleReading: "阅读理解",
+    styleAuditory: "视听听力",
+    btnGenStudyPlan: "生成学习计划",
+    studyPlanEmptyTopic: "请输入学习主题",
+    studyPlanGenerating: "正在生成学习计划…",
+    studyPlanDone: "学习计划已生成",
+    studyPlanFinalOutcome: "预期成果",
+    studyPlanEmptyResult: "无学习计划结果",
+    studyPlanUseKb: "结合知识库检索（扩展相关内容）",
+    studyPlanKbQuery: "检索用语（可选，留空则用主题）",
   },
   en: {
     brandTitle: "AI RAG System",
@@ -228,6 +252,30 @@ const I18N = {
     draftRestored: "(Last generated notes auto-restored)",
     switchLight: "Switch to light mode",
     switchDark: "Switch to dark mode",
+    studyPlanTitle: "📅 Study Plan Generator",
+    studyPlanLead: "Generate a personalized weekly study plan based on your level and goals",
+    studyPlanTopic: "Study Topic",
+    studyPlanLevel: "User Level",
+    studyPlanDuration: "Duration (weeks)",
+    studyPlanHours: "Daily Hours",
+    studyPlanStyle: "Learning Style",
+    studyPlanKnown: "Known Topics (comma separated)",
+    studyPlanWeak: "Weak Topics (comma separated)",
+    levelBeginner: "Beginner",
+    levelIntermediate: "Intermediate",
+    levelAdvanced: "Advanced",
+    styleHandsOn: "Hands-on",
+    styleVisual: "Visual",
+    styleReading: "Reading",
+    styleAuditory: "Auditory",
+    btnGenStudyPlan: "Generate Study Plan",
+    studyPlanEmptyTopic: "Please enter a study topic",
+    studyPlanGenerating: "Generating study plan…",
+    studyPlanDone: "Study plan generated",
+    studyPlanFinalOutcome: "Expected Outcome",
+    studyPlanEmptyResult: "No study plan results",
+    studyPlanUseKb: "Use knowledge base (extend related content)",
+    studyPlanKbQuery: "Search query (optional, uses topic if empty)",
   },
 };
 
@@ -353,6 +401,102 @@ function initHome() {
     if (x < chars.length * 3) requestAnimationFrame(draw);
   }
   draw();
+}
+
+/* ─────────────────────────────────────────────
+   STUDY PLAN — Generate Study Plan
+───────────────────────────────────────────── */
+function initStudyPlan() {
+  const out = $("studyPlanOut");
+  if (!out) return;
+
+  $("spUseKb").addEventListener("change", () => {
+    $("spKbRow").style.display = $("spUseKb").checked ? "block" : "none";
+  });
+
+  async function doGenStudyPlan() {
+    const topic = $("spTopic").value.trim();
+    if (!topic) { toast(t("studyPlanEmptyTopic"), "bad"); return; }
+    const level = $("spLevel").value;
+    const duration_weeks = Number($("spDuration").value) || 4;
+    const daily_hours = Number($("spHours").value) || 2;
+    const learning_style = $("spStyle").value;
+    const known_topics = ($("spKnown").value || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const weak_topics = ($("spWeak").value || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const use_knowledge_base = $("spUseKb").checked;
+    const kb_query = $("spKbQuery").value.trim() || null;
+
+    out.innerHTML = `<div class="muted">${t("studyPlanGenerating")}</div>`;
+    try {
+      const payload = await api("/study-plan/generate", {
+        method: "POST",
+        body: { level, known_topics, weak_topics, learning_style, topic, duration_weeks, daily_hours, use_knowledge_base, kb_query },
+      });
+      renderStudyPlan(payload);
+      toast(t("studyPlanDone"), "ok");
+    } catch (e) {
+      out.innerHTML = `<span class="danger">Error: ${escapeHtml(e.message)}</span>`;
+      toast(e.message, "bad");
+    }
+  }
+
+  function renderStudyPlan(data) {
+    if (!data?.weeks?.length) {
+      out.innerHTML = `<div class="muted">${data?.final_outcome || t("studyPlanEmptyResult")}</div>`;
+      return;
+    }
+    const weeks = data.weeks;
+    const finalOutcome = data.final_outcome || "";
+
+    let html = `<div class="study-plan">`;
+    for (const week of weeks) {
+      html += `<div class="study-plan-week">
+        <div class="study-plan-week__header">
+          <span class="study-plan-week__num">Week ${week.week}</span>
+          <span class="study-plan-week__focus">${escapeHtml(week.focus)}</span>
+        </div>
+        <div class="study-plan-week__body">
+          <div class="study-plan-week__section">
+            <div class="study-plan-week__label">Topics</div>
+            <div class="study-plan-week__value">${week.topics.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join(" ")}</div>
+          </div>
+          <div class="study-plan-week__section">
+            <div class="study-plan-week__label">Tasks</div>
+            <ul class="study-plan-week__list">${week.tasks.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
+          </div>
+          <div class="study-plan-week__section">
+            <div class="study-plan-week__label">Practice</div>
+            <ul class="study-plan-week__list">${week.practice.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+          </div>
+          <div class="study-plan-week__section">
+            <div class="study-plan-week__label">Milestone</div>
+            <div class="study-plan-week__milestone">${escapeHtml(week.milestone)}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+
+    if (finalOutcome) {
+      html += `<div class="study-plan-final">
+        <div class="study-plan-final__label">${t("studyPlanFinalOutcome")}</div>
+        <div class="study-plan-final__value">${escapeHtml(finalOutcome)}</div>
+      </div>`;
+    }
+
+    out.innerHTML = html;
+  }
+
+  $("btnGenStudyPlan").addEventListener("click", doGenStudyPlan);
+  $("btnClearStudyPlan").addEventListener("click", () => {
+    $("spTopic").value = "";
+    $("spKnown").value = "";
+    $("spWeak").value = "";
+    $("spUseKb").checked = false;
+    $("spKbQuery").value = "";
+    $("spKbRow").style.display = "none";
+    out.innerHTML = "";
+  });
 }
 
 /* ─────────────────────────────────────────────
@@ -1051,6 +1195,7 @@ function init() {
   const path = location.pathname;
   if (path === "/" || path === "") {
     initHome();
+    initStudyPlan();
   } else if (path === "/documents") {
     initDocuments();
   } else if (path === "/qa") {

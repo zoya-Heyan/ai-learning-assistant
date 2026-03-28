@@ -786,3 +786,35 @@ main { flex: 1; }
   .header__meta { width: 100%; justify-content: center; margin-top: 8px; }
   .page-settings .grid2 { grid-template-columns: 1fr; }
 }
+
+/* ─── Study Plan ─── */
+.section { margin-top: 40px; }
+.section__title { font-size: 22px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+.section__lead { color: var(--text2); margin-bottom: 24px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+.input, .select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; background: var(--card); color: var(--text); }
+.input:focus, .select:focus { outline: none; border-color: var(--primary); }
+.btn-group { display: flex; gap: 8px; margin-bottom: 20px; }
+.study-plan-output { margin-top: 16px; }
+.study-plan { display: flex; flex-direction: column; gap: 16px; }
+.study-plan-week { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.study-plan-week__header { background: var(--primary-light); padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+.study-plan-week__num { font-weight: 700; color: var(--primary-dark); }
+.study-plan-week__focus { color: var(--text2); font-size: 14px; }
+.study-plan-week__body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.study-plan-week__section { }
+.study-plan-week__label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.study-plan-week__value { display: flex; flex-wrap: wrap; gap: 6px; }
+.study-plan-week__list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.study-plan-week__list li { font-size: 14px; color: var(--text2); padding-left: 16px; position: relative; }
+.study-plan-week__list li::before { content: "•"; position: absolute; left: 0; color: var(--primary); }
+.study-plan-week__milestone { font-size: 14px; color: var(--accent); font-weight: 500; }
+.study-plan-final { background: var(--primary-light); border: 1px solid var(--primary); border-radius: var(--radius); padding: 16px; margin-top: 8px; }
+.study-plan-final__label { font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+.study-plan-final__value { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.tag { display: inline-block; padding: 2px 8px; background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; color: var(--text2); }
+.danger { color: var(--danger); }
+.checkbox { margin-right: 6px; vertical-align: middle; }
+
