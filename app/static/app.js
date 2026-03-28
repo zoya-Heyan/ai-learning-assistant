@@ -646,16 +646,18 @@ function initSettings() {
     await loadDocs();
   }
 
-  async function handleDocxFile(file) {
-    if (!file.name.toLowerCase().endsWith(".docx")) { toast(t("onlyDocx"), "bad"); return; }
+  async function handleFile(file) {
+    const ext = file.name.toLowerCase().split('.').pop();
+    if (!['docx', 'pdf'].includes(ext)) { toast(t("onlyDocx"), "bad"); return; }
     if (file.size > 20 * 1024 * 1024) { toast(t("fileSizeLimit"), "bad"); return; }
     $("createHint").textContent = t("parsing");
     try {
       const fd = new FormData();
       fd.append("file", file, file.name);
-      const doc = await apiForm("/documents/import-docx", fd);
+      const doc = await apiForm("/documents/import-file", fd);
       $("docTitle").value = ""; $("docContent").value = "";
-      $("createHint").textContent = `${t("importedOk")} #${doc.id}：${doc.title}`;
+      const typeLabel = ext === 'pdf' ? '(PDF转Word)' : '';
+      $("createHint").textContent = `${t("importedOk")} #${doc.id}：${doc.title} ${typeLabel}`;
       toast(`${t("importedOk")} #${doc.id}`, "ok");
       await loadDocs();
     } catch (e) { $("createHint").textContent = e.message; toast(e.message, "bad"); }
@@ -679,12 +681,12 @@ function initSettings() {
   dropzone.addEventListener("drop", (e) => {
     e.preventDefault(); dropzone.classList.remove("dropzone--dragover");
     const file = e.dataTransfer?.files?.[0];
-    if (file) handleDocxFile(file);
+    if (file) handleFile(file);
   });
   dropzone.addEventListener("click", () => fileInput.click());
   dropzone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
   btnSelectFile.addEventListener("click", (e) => { e.stopPropagation(); fileInput.click(); });
-  fileInput.addEventListener("change", () => { const file = fileInput.files?.[0]; if (file) handleDocxFile(file); fileInput.value = ""; });
+  fileInput.addEventListener("change", () => { const file = fileInput.files?.[0]; if (file) handleFile(file); fileInput.value = ""; });
 
   $("docsOut").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-action]");
@@ -786,16 +788,18 @@ function initDocuments() {
     await loadDocs();
   }
 
-  async function handleDocxFile(file) {
-    if (!file.name.toLowerCase().endsWith(".docx")) { toast(t("onlyDocx"), "bad"); return; }
+  async function handleFile(file) {
+    const ext = file.name.toLowerCase().split('.').pop();
+    if (!['docx', 'pdf'].includes(ext)) { toast(t("onlyDocx"), "bad"); return; }
     if (file.size > 20 * 1024 * 1024) { toast(t("fileSizeLimit"), "bad"); return; }
     $("createHint").textContent = t("parsing");
     try {
       const fd = new FormData();
       fd.append("file", file, file.name);
-      const doc = await apiForm("/documents/import-docx", fd);
+      const doc = await apiForm("/documents/import-file", fd);
       $("docTitle").value = ""; $("docContent").value = "";
-      $("createHint").textContent = `${t("importedOk")} #${doc.id}：${doc.title}`;
+      const typeLabel = ext === 'pdf' ? '(PDF转Word)' : '';
+      $("createHint").textContent = `${t("importedOk")} #${doc.id}：${doc.title} ${typeLabel}`;
       toast(`${t("importedOk")} #${doc.id}`, "ok");
       await loadDocs();
     } catch (e) { $("createHint").textContent = e.message; toast(e.message, "bad"); }
@@ -816,12 +820,12 @@ function initDocuments() {
   dropzone.addEventListener("drop", (e) => {
     e.preventDefault(); dropzone.classList.remove("dropzone--dragover");
     const file = e.dataTransfer?.files?.[0];
-    if (file) handleDocxFile(file);
+    if (file) handleFile(file);
   });
   dropzone.addEventListener("click", () => fileInput.click());
   dropzone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
   btnSelectFile.addEventListener("click", (e) => { e.stopPropagation(); fileInput.click(); });
-  fileInput.addEventListener("change", () => { const file = fileInput.files?.[0]; if (file) handleDocxFile(file); fileInput.value = ""; });
+  fileInput.addEventListener("change", () => { const file = fileInput.files?.[0]; if (file) handleFile(file); fileInput.value = ""; });
 
   $("docsOut").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-action]");

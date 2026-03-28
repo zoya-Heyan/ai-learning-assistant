@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Word Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .dropzone {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+        .dropzone:hover, .dropzone.dragover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+        .dropzone-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .dropzone-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .dropzone-hint {
+            font-size: 13px;
+            color: #888;
+        }
+        .dropzone-or {
+            margin: 15px 0;
+            color: #999;
+            font-size: 13px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        .status.show {
+            display: block;
+        }
+        .status-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        .status-label {
+            color: #666;
+        }
+        .status-value {
+            color: #333;
+            font-weight: 500;
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .info-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #31708f;
+        }
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF 转 Word 转换器</h1>
+        <p class="subtitle">支持文字版和扫描版PDF，自动识别转换</p>
+
+        <div class="dropzone" id="dropzone">
+            <div class="dropzone-icon">📄</div>
+            <div class="dropzone-text">拖拽 PDF 或 Word 文件到此处</div>
+            <div class="dropzone-hint">或者点击下方按钮选择文件</div>
+            <div class="dropzone-or">支持 .pdf, .docx 格式</div>
+            <button class="btn" id="btnSelect">选择文件</button>
+            <input type="file" id="fileInput" accept=".pdf,.doc,.docx">
+        </div>
+
+        <div class="status" id="statusBox">
+            <div class="status-title">处理状态</div>
+            <div class="status-item">
+                <span class="status-label">文件名</span>
+                <span class="status-value" id="statusFile">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">文件类型</span>
+                <span class="status-value" id="statusType">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">处理结果</span>
+                <span class="status-value" id="statusResult">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">输出路径</span>
+                <span class="status-value" id="statusOutput">-</span>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>自动分类存储：</strong>
+            文件将自动保存到以下目录：<br>
+            • 原始文件 → output/original/<br>
+            • 转换后文件 → output/converted/<br>
+            • 操作日志 → output/logs/
+        </div>
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const btnSelect = document.getElementById('btnSelect');
+        const statusBox = document.getElementById('statusBox');
+
+        function showStatus(file, type, result, output, isSuccess) {
+            statusBox.classList.add('show');
+            document.getElementById('statusFile').textContent = file;
+            document.getElementById('statusType').textContent = type;
+            document.getElementById('statusResult').textContent = result;
+            document.getElementById('statusResult').className = 'status-value ' + (isSuccess ? 'success' : 'error');
+            document.getElementById('statusOutput').textContent = output || '-';
+        }
+
+        async function uploadFile(file) {
+            const ext = file.name.toLowerCase().split('.').pop();
+            const typeLabel = ext === 'pdf' ? 'PDF文档' : 'Word文档';
+
+            showStatus(file.name, '上传中...', '处理中', '-', true);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.type === 'pdf_converted') {
+                        showStatus(
+                            data.original_file,
+                            typeLabel,
+                            '转换成功 ✓',
+                            data.output_path || data.converted_file,
+                            true
+                        );
+                    } else {
+                        showStatus(
+                            data.original_file,
+                            typeLabel,
+                            '处理成功 ✓ (Word文档直接检索)',
+                            `- (提取${data.text_length}字符)`,
+                            true
+                        );
+                    }
+                } else {
+                    showStatus(file.name, typeLabel, '处理失败: ' + data.detail, '-', false);
+                }
+            } catch (error) {
+                showStatus(file.name, typeLabel, '网络错误: ' + error.message, '-', false);
+            }
+        }
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            const file = e.dataTransfer?.files?.[0];
+            if (file) uploadFile(file);
+        });
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        btnSelect.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files?.[0];
+            if (file) uploadFile(file);
+            fileInput.value = '';
+        });
+    </script>
+</body>
+</html>

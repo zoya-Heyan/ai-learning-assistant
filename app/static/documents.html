@@ -68,15 +68,15 @@
           </div>
         </div>
         <div class="field">
-          <label class="label" for="fileInput" data-i18n="importWordLabel">从 Word 导入（.docx）</label>
-          <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="上传 docx 文件">
+          <label class="label" for="fileInput" data-i18n="importFileLabel">导入文件（.docx / .pdf）</label>
+          <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="上传 docx 或 pdf 文件">
             <div class="dropzone__inner">
               <div class="dropzone__icon">📄</div>
-              <div class="dropzone__text" data-i18n="dropzoneText">拖拽 .docx 到此处，或点击下方选择文件</div>
-              <div class="dropzone__hint" data-i18n="dropzoneHint">服务端解析后自动创建文档并建索引（≤20MB）</div>
+              <div class="dropzone__text" data-i18n="dropzoneText">拖拽 .docx / .pdf 到此处，或点击下方选择文件</div>
+              <div class="dropzone__hint" data-i18n="dropzoneHint">Word直接解析；PDF自动转Word后建索引（≤20MB）</div>
               <div class="dropzone__or" data-i18n="dropzoneOr">或</div>
-              <button type="button" class="btn btn--ghost" id="btnSelectFile" data-i18n="selectDocx">选择 .docx</button>
-              <input type="file" id="fileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden />
+              <button type="button" class="btn btn--ghost" id="btnSelectFile" data-i18n="selectFile">选择文件</button>
+              <input type="file" id="fileInput" accept=".docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf" hidden />
             </div>
           </div>
         </div>

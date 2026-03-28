@@ -127,6 +127,101 @@ async def import_docx(request: Request, file: UploadFile = File(...)):
     return DocumentSchema(**doc)
 
 
+@router.post("/import-file", response_model=DocumentSchema)
+async def import_file(request: Request, file: UploadFile = File(...)):
+    """Upload .docx or .pdf file; extract text and create document.
+    For PDF files, automatically convert to Word first.
+    """
+    name = (file.filename or "").strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    ext = name.lower().split('.')[-1]
+    if ext not in ('docx', 'pdf'):
+        raise HTTPException(status_code=400, detail="Only .docx and .pdf files are supported")
+
+    data = await file.read()
+    if len(data) > _MAX_DOCX_BYTES:
+        raise HTTPException(status_code=400, detail="File too large (max 20MB)")
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
+
+    loop = asyncio.get_event_loop()
+    executor = request.app.state.executor
+
+    def _parse() -> str:
+        if ext == 'docx':
+            from app.services.docx_text import extract_plain_text_from_docx
+            return extract_plain_text_from_docx(data)
+        else:
+            import tempfile
+            import os
+            try:
+                from pdf2docx import Converter
+                has_pdf2docx = True
+            except ImportError:
+                has_pdf2docx = False
+
+            if has_pdf2docx:
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_pdf:
+                    tmp_pdf.write(data)
+                    tmp_pdf_path = tmp_pdf.name
+
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp_docx:
+                    tmp_docx_path = tmp_docx.name
+
+                try:
+                    cv = Converter(tmp_pdf_path)
+                    cv.convert(tmp_docx_path, start=0, end=None)
+                    cv.close()
+
+                    with open(tmp_docx_path, 'rb') as f:
+                        docx_data = f.read()
+
+                    from app.services.docx_text import extract_plain_text_from_docx
+                    text = extract_plain_text_from_docx(docx_data)
+                    return text
+                finally:
+                    try:
+                        os.unlink(tmp_pdf_path)
+                    except:
+                        pass
+                    try:
+                        os.unlink(tmp_docx_path)
+                    except:
+                        pass
+            else:
+                from PyPDF2 import PdfReader
+                import io
+                reader = PdfReader(io.BytesIO(data))
+                text_parts = []
+                for page in reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_parts.append(page_text)
+                return '\n\n'.join(text_parts)
+
+    try:
+        text = await loop.run_in_executor(executor, _parse)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to process file: {e}") from e
+
+    if not text.strip():
+        raise HTTPException(status_code=400, detail="No valid text extracted from file")
+
+    base = name.rsplit("/", 1)[-1]
+    if base.lower().endswith(('.docx', '.pdf')):
+        title = base.rsplit('.', 1)[0]
+    else:
+        title = base
+    title = title.strip() or "未命名"
+
+    doc = await _create_document_with_chunks(request, title, text)
+    return DocumentSchema(**doc)
+
+
 @router.get("/", response_model=APIResponse)
 async def list_documents(request: Request):
     if _use_postgres(request):
