@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI RAG System — 检索问答</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/documents" class="nav__item" data-nav="documents">
+            <span class="nav__icon">📚</span>
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
+          </a>
+          <a href="/qa" class="nav__item nav__item--active" data-nav="qa">
+            <span class="nav__icon">💬</span>
+            <span class="nav__label" data-i18n="navQA">问答</span>
+          </a>
+          <a href="/questions" class="nav__item" data-nav="questions">
+            <span class="nav__icon">📝</span>
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
+          </a>
+          <a href="/notes" class="nav__item" data-nav="notes">
+            <span class="nav__icon">📓</span>
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
+          </a>
+          <a href="/analysis" class="nav__item" data-nav="analysis">
+            <span class="nav__icon">🔍</span>
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
+          </a>
+          <a href="/settings" class="nav__item" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+            <span class="nav__label" data-i18n="navSettings">设置</span>
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="card">
+        <div class="card__title" data-i18n="searchQA">检索问答</div>
+        <div class="queryBox">
+          <div class="field field--query">
+            <div class="labelRow">
+              <label class="label label--inline" for="queryInput" data-i18n="queryLabel">问题</label>
+              <span class="hint hint--inline" id="queryHint">⌘/Ctrl + Enter 发送</span>
+            </div>
+            <textarea
+              id="queryInput"
+              class="input input--query"
+              rows="5"
+              maxlength="8000"
+              placeholder=""
+              spellcheck="false"
+            ></textarea>
+            <div class="queryToolbar">
+              <button type="button" class="btn btn--ghost btn--sm" id="btnClearQuery" title="清空问题">清空</button>
+            </div>
+          </div>
+          <div class="row row--between row--gap row--wrap queryActions">
+            <div class="row row--gap row--wrap">
+              <label class="check">
+                <input type="checkbox" id="useLlm" checked />
+                <span data-i18n="useLlmLabel">使用 LLM 生成回答</span>
+              </label>
+              <div class="field field--inline">
+                <label class="label label--inline" for="topK">Top-K</label>
+                <select id="topK" class="input input--select">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3" selected>3</option>
+                  <option value="5">5</option>
+                  <option value="8">8</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn--primary" id="btnSearch" data-i18n="btnSearch">搜索</button>
+          </div>
+        </div>
+        <div class="split">
+          <div>
+            <div class="subTitle" data-i18n="answerLabel">回答</div>
+            <div class="answer" id="answerOut">—</div>
+          </div>
+          <div>
+            <div class="subTitle" data-i18n="topKLabel">Top-K 结果</div>
+            <div class="results" id="resultsOut"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

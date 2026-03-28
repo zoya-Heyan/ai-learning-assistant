@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intelligent Learning Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">Intelligent Learning Assistant</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="#" class="nav__item nav__item--active" data-nav="home">
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/documents" class="nav__item" data-nav="documents">
+            <span class="nav__icon">📚</span>
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
+          </a>
+          <a href="/qa" class="nav__item" data-nav="qa">
+            <span class="nav__icon">💬</span>
+            <span class="nav__label" data-i18n="navQA">问答</span>
+          </a>
+          <a href="/questions" class="nav__item" data-nav="questions">
+            <span class="nav__icon">📝</span>
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
+          </a>
+          <a href="/notes" class="nav__item" data-nav="notes">
+            <span class="nav__icon">📓</span>
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
+          </a>
+          <a href="/analysis" class="nav__item" data-nav="analysis">
+            <span class="nav__icon">🔍</span>
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
+          </a>
+          <a href="/settings" class="nav__item" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+            <span class="nav__label" data-i18n="navSettings">设置</span>
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="hero">
+        <canvas id="bannerCanvas" width="800" height="80"></canvas>
+        <h1 class="hero__title" data-i18n="heroTitle">欢迎使用 Intelligent Learning Assistant</h1>
+        <p class="hero__sub" data-i18n="heroSub">选择下方模块开始使用</p>
+      </div>
+
+      <div class="module-grid">
+        <a href="/documents" class="module-card">
+          <div class="module-card__icon">📚</div>
+          <div class="module-card__title" data-i18n="modDocuments">文档管理</div>
+          <div class="module-card__desc" data-i18n="modDocumentsDesc">上传、管理文档，支持 Word、纯文本</div>
+        </a>
+
+        <a href="/qa" class="module-card">
+          <div class="module-card__icon">💬</div>
+          <div class="module-card__title" data-i18n="modQA">检索问答</div>
+          <div class="module-card__desc" data-i18n="modQADesc">基于知识库的自然语言问答</div>
+        </a>
+
+        <a href="/questions" class="module-card">
+          <div class="module-card__icon">📝</div>
+          <div class="module-card__title" data-i18n="modQuestions">生成习题</div>
+          <div class="module-card__desc" data-i18n="modQuestionsDesc">从教材生成单选/多选/填空/简答题</div>
+        </a>
+
+        <a href="/notes" class="module-card">
+          <div class="module-card__icon">📓</div>
+          <div class="module-card__title" data-i18n="modNotes">笔记生成</div>
+          <div class="module-card__desc" data-i18n="modNotesDesc">自动生成结构化 Markdown 笔记</div>
+        </a>
+
+        <a href="/analysis" class="module-card">
+          <div class="module-card__icon">🔍</div>
+          <div class="module-card__title" data-i18n="modAnalysis">题目解析</div>
+          <div class="module-card__desc" data-i18n="modAnalysisDesc">获取题目的详细知识点解析</div>
+        </a>
+
+        <a href="/settings" class="module-card">
+          <div class="module-card__icon">⚙️</div>
+          <div class="module-card__title" data-i18n="modSettings">系统设置</div>
+          <div class="module-card__desc" data-i18n="modSettingsDesc">查看系统状态与配置信息</div>
+        </a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

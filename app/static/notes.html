@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI RAG System — 笔记生成</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/documents" class="nav__item" data-nav="documents">
+            <span class="nav__icon">📚</span>
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
+          </a>
+          <a href="/qa" class="nav__item" data-nav="qa">
+            <span class="nav__icon">💬</span>
+            <span class="nav__label" data-i18n="navQA">问答</span>
+          </a>
+          <a href="/questions" class="nav__item" data-nav="questions">
+            <span class="nav__icon">📝</span>
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
+          </a>
+          <a href="/notes" class="nav__item nav__item--active" data-nav="notes">
+            <span class="nav__icon">📓</span>
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
+          </a>
+          <a href="/analysis" class="nav__item" data-nav="analysis">
+            <span class="nav__icon">🔍</span>
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
+          </a>
+          <a href="/settings" class="nav__item" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+            <span class="nav__label" data-i18n="navSettings">设置</span>
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="card">
+        <div class="card__title" data-i18n="genNotes">笔记生成（Markdown）</div>
+        <p class="muted toolsLead" data-i18n="genNotesLead">按主题检索知识库并生成结构化笔记（标题、列表、要点）。</p>
+        <div class="field">
+          <label class="label" for="notesTopic">主题 / 关键词</label>
+          <input id="notesTopic" class="input" list="notesHistory" placeholder="例如：FAISS 向量检索与增量更新" />
+          <datalist id="notesHistory"></datalist>
+        </div>
+        <div class="field field--inline">
+          <label class="label label--inline" for="notesTopK">Top-K</label>
+          <select id="notesTopK" class="input input--select">
+            <option value="4">4</option>
+            <option value="6" selected>6</option>
+            <option value="8">8</option>
+          </select>
+        </div>
+        <div class="row row--gap">
+          <button type="button" class="btn btn--primary" id="btnNotesGo" data-i18n="btnGenNotes">生成笔记</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="btnNotesClear" data-i18n="btnClear">清空</button>
+        </div>
+        <div class="hint" id="notesMeta"></div>
+        <div class="mdActions" id="notesActions" hidden>
+          <div class="mdActions__left">
+            <button type="button" class="btn btn--ghost btn--sm" id="btnNotesView" data-i18n="btnPreview">预览</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnNotesRaw" data-i18n="btnRaw">源码</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnNotesCopy" data-i18n="btnCopyMd">复制 Markdown</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnNotesDownload" data-i18n="btnDownloadMd">下载 .md</button>
+          </div>
+          <div class="mdActions__refs" id="notesRefs"></div>
+        </div>
+        <div class="mdPreview" id="notesPreview" hidden></div>
+        <pre class="mdOut" id="notesOut" hidden></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

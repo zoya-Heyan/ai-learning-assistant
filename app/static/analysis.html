@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI RAG System — 题目解析</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/documents" class="nav__item" data-nav="documents">
+            <span class="nav__icon">📚</span>
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
+          </a>
+          <a href="/qa" class="nav__item" data-nav="qa">
+            <span class="nav__icon">💬</span>
+            <span class="nav__label" data-i18n="navQA">问答</span>
+          </a>
+          <a href="/questions" class="nav__item" data-nav="questions">
+            <span class="nav__icon">📝</span>
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
+          </a>
+          <a href="/notes" class="nav__item" data-nav="notes">
+            <span class="nav__icon">📓</span>
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
+          </a>
+          <a href="/analysis" class="nav__item nav__item--active" data-nav="analysis">
+            <span class="nav__icon">🔍</span>
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
+          </a>
+          <a href="/settings" class="nav__item" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+            <span class="nav__label" data-i18n="navSettings">设置</span>
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="card">
+        <div class="card__title" data-i18n="questionAnalysis">题目解析</div>
+        <p class="muted toolsLead" data-i18n="questionAnalysisLead">输入题目和答案，获取详细知识点解析与延伸讲解。</p>
+        <div class="field">
+          <label class="label" for="analysisQuestion" data-i18n="questionContent">题目内容</label>
+          <textarea id="analysisQuestion" class="input input--query" rows="6" placeholder="输入需要解析的题目…"></textarea>
+        </div>
+        <div class="field">
+          <label class="label" for="analysisAnswer" data-i18n="correctAnswerOpt">正确答案（可选）</label>
+          <input id="analysisAnswer" class="input" placeholder="如果知道正确答案，可以输入以获得更精确的解析…" />
+        </div>
+        <div class="row row--gap">
+          <button type="button" class="btn btn--primary" id="btnAnalysisGo" data-i18n="btnStartAnalysis">开始解析</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="btnAnalysisClear" data-i18n="btnClear">清空</button>
+        </div>
+        <div class="hint" id="analysisMeta"></div>
+        <div class="mdActions" id="analysisActions" hidden>
+          <div class="mdActions__left">
+            <button type="button" class="btn btn--ghost btn--sm" id="btnAnalysisView" data-i18n="btnPreview">预览</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnAnalysisRaw" data-i18n="btnRaw">源码</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnAnalysisCopy" data-i18n="btnCopyMd">复制 Markdown</button>
+          </div>
+        </div>
+        <div class="mdPreview" id="analysisPreview" hidden></div>
+        <pre class="mdOut" id="analysisOut" hidden></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

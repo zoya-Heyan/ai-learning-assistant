@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI RAG System — 生成习题</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/documents" class="nav__item" data-nav="documents">
+            <span class="nav__icon">📚</span>
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
+          </a>
+          <a href="/qa" class="nav__item" data-nav="qa">
+            <span class="nav__icon">💬</span>
+            <span class="nav__label" data-i18n="navQA">问答</span>
+          </a>
+          <a href="/questions" class="nav__item nav__item--active" data-nav="questions">
+            <span class="nav__icon">📝</span>
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
+          </a>
+          <a href="/notes" class="nav__item" data-nav="notes">
+            <span class="nav__icon">📓</span>
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
+          </a>
+          <a href="/analysis" class="nav__item" data-nav="analysis">
+            <span class="nav__icon">🔍</span>
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
+          </a>
+          <a href="/settings" class="nav__item" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+            <span class="nav__label" data-i18n="navSettings">设置</span>
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="card">
+        <div class="card__title" data-i18n="genQuestions">生成习题</div>
+        <p class="muted toolsLead" data-i18n="genQuestionsLead">粘贴学习材料，生成高质量练习题（单选/多选/填空/简答），可结合知识库扩展。</p>
+        <div class="field">
+          <label class="check">
+            <input type="checkbox" id="wrongUseKb" />
+            <span data-i18n="useKbLabel">结合知识库检索（扩展相关知识）</span>
+          </label>
+        </div>
+        <div class="field is-hidden" id="wrongKbRow">
+          <label class="label" for="wrongKbQuery" data-i18n="kbQueryLabel">检索用语（可选，留空则用正文前段）</label>
+          <input id="wrongKbQuery" class="input" placeholder="例如：导数 极值" />
+          <div class="row row--gap row--wrap" style="margin-top: 8px">
+            <label class="label label--inline" for="wrongTopK">Top-K</label>
+            <select id="wrongTopK" class="input input--select">
+              <option value="3" selected>3</option>
+              <option value="5">5</option>
+              <option value="8">8</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="wrongInput" data-i18n="materialLabel">学习材料</label>
+          <textarea id="wrongInput" class="input input--query" rows="10" maxlength="120000" placeholder="粘贴教材、笔记或文档内容，用于生成习题…"></textarea>
+        </div>
+        <div class="row row--gap">
+          <button type="button" class="btn btn--primary" id="btnWrongGo" data-i18n="btnGenQuestions">生成习题</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="btnWrongClear" data-i18n="btnClear">清空</button>
+        </div>
+        <div class="hint" id="wrongMeta"></div>
+        <div class="mdActions" id="wrongActions" hidden>
+          <div class="mdActions__left">
+            <button type="button" class="btn btn--ghost btn--sm" id="btnWrongView" data-i18n="btnPreview">预览</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnWrongRaw" data-i18n="btnRaw">源码</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnWrongCopy" data-i18n="btnCopyMd">复制 Markdown</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnWrongDownload" data-i18n="btnDownloadMd">下载 .md</button>
+          </div>
+          <div class="mdActions__refs" id="wrongRefs"></div>
+        </div>
+        <div class="mdPreview" id="wrongPreview" hidden></div>
+        <pre class="mdOut" id="wrongOut" hidden></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

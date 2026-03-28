@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 
 const state = {
-  apiBase: window.localStorage.getItem("API_BASE") || window.location.origin,
+  apiBase: localStorage.getItem("API_BASE") || location.origin,
   docs: [],
   docFilter: "",
 };
@@ -57,7 +57,66 @@ const I18N = {
     filterLabel: "过滤",
     footerTech: "RAG system（Qwen 7B + bge-small-zh）",
     footerTips: "Tips: 学习工具支持生成习题与 Markdown 笔记；默认 chunk_size≈400、TOP_K=3。",
-    clearQuery: "清空问题",
+    navHome: "首页",
+    navSettings: "设置",
+    navDocuments: "文档",
+    navQA: "问答",
+    navQuestions: "习题",
+    navNotes: "笔记",
+    navAnalysis: "解析",
+    heroTitle: "欢迎使用 AI RAG 学习助手",
+    heroSub: "选择下方模块开始使用",
+    modDocuments: "文档管理",
+    modDocumentsDesc: "上传、管理文档，支持 Word、纯文本",
+    modQA: "检索问答",
+    modQADesc: "基于知识库的自然语言问答",
+    modQuestions: "生成习题",
+    modQuestionsDesc: "从教材生成单选/多选/填空/简答题",
+    modNotes: "笔记生成",
+    modNotesDesc: "自动生成结构化 Markdown 笔记",
+    modAnalysis: "题目解析",
+    modAnalysisDesc: "获取题目的详细知识点解析",
+    modSettings: "系统设置",
+    modSettingsDesc: "查看系统状态与配置信息",
+    noDocs: "暂无文档",
+    noResults: "无结果",
+    creating: "正在创建并切分/向量化…（首次可能较慢）",
+    createdOk: "创建成功",
+    importedOk: "已导入文档",
+    deletedOk: "已删除",
+    searchDone: "搜索完成",
+    questionsDone: "习题已生成",
+    notesDone: "笔记已生成",
+    analysisDone: "解析完成",
+    copiedOk: "已复制",
+    copiedMd: "已复制 Markdown",
+    downloadedOk: "已下载",
+    copiedFail: "复制失败（浏览器权限）",
+    emptyTitle: "标题不能为空",
+    emptyContent: "内容不能为空",
+    emptyMaterial: "请粘贴学习材料",
+    emptyQuestion: "请输入题目内容",
+    emptyTopic: "请输入主题或关键词",
+    emptyQuery: "请输入问题",
+    onlyDocx: "仅支持 .docx 文件",
+    fileSizeLimit: "文件需 ≤20MB",
+    parsing: "正在上传并由服务端解析 docx…",
+    confirmDelete: "确认删除？",
+    uploadedOk: "上传成功",
+    kbHits: "知识库命中",
+    retrieved: "检索到",
+    chars: "chars",
+    docRowView: "查看",
+    docRowEdit: "编辑",
+    docRowDelete: "删除",
+    noModification: "未做任何修改",
+    updated: "已更新",
+    docsLoaded: "加载文档",
+    indexStats: "Index",
+    totalDocs: "Total",
+    draftRestored: "（上次生成的笔记已自动恢复）",
+    switchLight: "切换到浅色模式",
+    switchDark: "切换到深色模式",
   },
   en: {
     brandTitle: "AI RAG System",
@@ -109,23 +168,82 @@ const I18N = {
     filterLabel: "Filter",
     footerTech: "RAG system (Qwen 7B + bge-small-zh)",
     footerTips: "Tip: Learning tools generate exercises and Markdown notes; default chunk_size≈400, TOP_K=3.",
-    clearQuery: "Clear question",
+    navHome: "Home",
+    navSettings: "Settings",
+    navDocuments: "Documents",
+    navQA: "QA",
+    navQuestions: "Questions",
+    navNotes: "Notes",
+    navAnalysis: "Analysis",
+    heroTitle: "Welcome to AI RAG Learning Assistant",
+    heroSub: "Select a module to get started",
+    modDocuments: "Document Management",
+    modDocumentsDesc: "Upload and manage documents, supports Word and plain text",
+    modQA: "Search & QA",
+    modQADesc: "Natural language Q&A based on knowledge base",
+    modQuestions: "Generate Questions",
+    modQuestionsDesc: "Generate single/multi-choice, fill-in, essay questions from materials",
+    modNotes: "Notes Generation",
+    modNotesDesc: "Auto-generate structured Markdown notes",
+    modAnalysis: "Question Analysis",
+    modAnalysisDesc: "Get detailed knowledge analysis for questions",
+    modSettings: "System Settings",
+    modSettingsDesc: "View system status and configuration",
+    noDocs: "No documents",
+    noResults: "No results",
+    creating: "Creating and chunking/vectorizing… (first time may be slow)",
+    createdOk: "Created successfully",
+    importedOk: "Imported document",
+    deletedOk: "Deleted",
+    searchDone: "Search done",
+    questionsDone: "Questions generated",
+    notesDone: "Notes generated",
+    analysisDone: "Analysis done",
+    copiedOk: "Copied",
+    copiedMd: "Copied Markdown",
+    downloadedOk: "Downloaded",
+    copiedFail: "Copy failed (browser permission)",
+    emptyTitle: "Title is required",
+    emptyContent: "Content is required",
+    emptyMaterial: "Please paste study material",
+    emptyQuestion: "Please enter question content",
+    emptyTopic: "Please enter a topic or keyword",
+    emptyQuery: "Please enter a question",
+    onlyDocx: "Only .docx files are supported",
+    fileSizeLimit: "File must be ≤20MB",
+    parsing: "Uploading and parsing docx on server…",
+    confirmDelete: "Confirm delete?",
+    uploadedOk: "Uploaded",
+    kbHits: "KB hits",
+    retrieved: "Retrieved",
+    chars: "chars",
+    docRowView: "View",
+    docRowEdit: "Edit",
+    docRowDelete: "Delete",
+    noModification: "No modifications made",
+    updated: "Updated",
+    docsLoaded: "Documents loaded",
+    indexStats: "Index",
+    totalDocs: "Total",
+    draftRestored: "(Last generated notes auto-restored)",
+    switchLight: "Switch to light mode",
+    switchDark: "Switch to dark mode",
   },
 };
 
 let currentLang = localStorage.getItem("LANG") || "zh";
 
+function t(key) {
+  return (I18N[currentLang]?.[key]) || (I18N.zh[key]) || key;
+}
+
 function applyI18n(lang) {
   currentLang = lang;
   localStorage.setItem("LANG", lang);
-  const t = I18N[lang] || I18N.zh;
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
-    if (t[key]) el.textContent = t[key];
-  });
-  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
-    const key = el.getAttribute("data-i18n-title");
-    if (t[key]) el.setAttribute("title", t[key]);
+    const txt = t(key);
+    if (txt !== key) el.textContent = txt;
   });
   document.querySelectorAll(".langSwitch__btn").forEach((btn) => {
     btn.classList.toggle("langSwitch__btn--active", btn.getAttribute("data-lang") === lang);
@@ -136,11 +254,11 @@ function applyTheme(theme) {
   if (theme === "dark") {
     document.documentElement.setAttribute("data-theme", "dark");
     $("btnTheme").textContent = "☀️";
-    $("btnTheme").setAttribute("title", currentLang === "zh" ? "切换亮色主题" : "Switch to light theme");
+    $("btnTheme").setAttribute("title", t(currentLang === "zh" ? "switchLight" : "switchLightEn"));
   } else {
     document.documentElement.removeAttribute("data-theme");
     $("btnTheme").textContent = "🌙";
-    $("btnTheme").setAttribute("title", currentLang === "zh" ? "切换暗色主题" : "Switch to dark theme");
+    $("btnTheme").setAttribute("title", t(currentLang === "zh" ? "switchDark" : "switchDarkEn"));
   }
   localStorage.setItem("THEME", theme);
 }
@@ -158,23 +276,21 @@ function toggleTheme() {
 
 function setApiBase(base) {
   state.apiBase = base.replace(/\/+$/, "");
-  window.localStorage.setItem("API_BASE", state.apiBase);
-  $("apiBasePill").textContent = `API: ${state.apiBase}`;
+  localStorage.setItem("API_BASE", state.apiBase);
+  $("apiBasePill").textContent = state.apiBase;
 }
 
 function toast(msg, kind = "ok") {
   const el = $("toast");
   el.textContent = msg;
   el.className = `toast toast--show ${kind === "ok" ? "toast--ok" : "toast--bad"}`;
-  window.clearTimeout(toast._t);
-  toast._t = window.setTimeout(() => {
-    el.className = "toast";
-  }, 2400);
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { el.className = "toast"; }, 2400);
 }
 
-async function api(path, { method = "GET", body, headers } = {}) {
+async function api(path, { method = "GET", body } = {}) {
   const url = `${state.apiBase}${path.startsWith("/") ? "" : "/"}${path}`;
-  const init = { method, headers: { ...(headers || {}) } };
+  const init = { method, headers: {} };
   if (body !== undefined) {
     init.headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(body);
@@ -182,11 +298,20 @@ async function api(path, { method = "GET", body, headers } = {}) {
   const res = await fetch(url, init);
   const text = await res.text();
   let data;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!res.ok) {
+    const detail = data?.detail || (typeof data === "string" ? data : JSON.stringify(data));
+    throw new Error(`${res.status} ${res.statusText}${detail ? `: ${detail}` : ""}`);
   }
+  return data;
+}
+
+async function apiForm(path, formData) {
+  const url = `${state.apiBase}${path.startsWith("/") ? "" : "/"}${path}`;
+  const res = await fetch(url, { method: "POST", body: formData });
+  const text = await res.text();
+  let data;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
   if (!res.ok) {
     const detail = data?.detail || (typeof data === "string" ? data : JSON.stringify(data));
     throw new Error(`${res.status} ${res.statusText}${detail ? `: ${detail}` : ""}`);
@@ -195,586 +320,227 @@ async function api(path, { method = "GET", body, headers } = {}) {
 }
 
 function prettyJson(x) {
-  try {
-    return JSON.stringify(x, null, 2);
-  } catch {
-    return String(x);
-  }
-}
-
-function normalizeDocRow(raw) {
-  // APIResponse data likely list[dict] from db layer. Keep fields flexible.
-  return {
-    id: raw.id,
-    title: raw.title ?? "(untitled)",
-    content: raw.content ?? "",
-  };
-}
-
-function renderDocs() {
-  const out = $("docsOut");
-  const q = state.docFilter.trim().toLowerCase();
-  const rows = (state.docs || [])
-    .map(normalizeDocRow)
-    .filter((d) => {
-      if (!q) return true;
-      return (d.title || "").toLowerCase().includes(q) || (d.content || "").toLowerCase().includes(q);
-    });
-
-  if (!rows.length) {
-    out.innerHTML = `<div class="muted">暂无文档。你可以先在左侧创建一篇。</div>`;
-    return;
-  }
-
-  out.innerHTML = rows
-    .map((d) => {
-      const preview = (d.content || "").slice(0, 180) + ((d.content || "").length > 180 ? "…" : "");
-      return `
-        <div class="docRow" data-docid="${d.id}">
-          <div class="docRow__title">${escapeHtml(d.title)}</div>
-          <div class="docRow__meta">
-            <span>#${d.id}</span>
-            <span>${d.content.length} chars</span>
-          </div>
-          <div class="muted" style="white-space: pre-wrap; font-size: 12px; margin-bottom: 10px;">${escapeHtml(preview)}</div>
-          <div class="docRow__actions">
-            <button class="btn" data-action="view">查看</button>
-            <button class="btn" data-action="edit">编辑</button>
-            <button class="btn btn--danger" data-action="delete">删除</button>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
+  try { return JSON.stringify(x, null, 2); } catch { return String(x); }
 }
 
 function escapeHtml(s) {
   return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 }
 
-function renderSearchResults(payload) {
-  $("answerOut").textContent = payload?.answer ?? "—";
-  const list = payload?.top_k_results || [];
-  const out = $("resultsOut");
-  if (!list.length) {
-    out.innerHTML = `<div class="muted">无结果</div>`;
-    return;
+function copyText(text) {
+  return navigator.clipboard.writeText(text);
+}
+
+/* ─────────────────────────────────────────────
+   HOME PAGE — Landing
+───────────────────────────────────────────── */
+function initHome() {
+  const canvas = document.getElementById("bannerCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const text = "AI RAG System";
+  const chars = text.split("");
+  let x = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "bold 28px monospace";
+    ctx.fillStyle = "#4a7c59";
+    const char = chars[x % chars.length];
+    ctx.fillText(char, 20 + x * 18, 50);
+    x++;
+    if (x < chars.length * 3) requestAnimationFrame(draw);
   }
-  out.innerHTML = list
-    .map((r) => {
+  draw();
+}
+
+/* ─────────────────────────────────────────────
+   QA PAGE — Search & Answer
+───────────────────────────────────────────── */
+function initQA() {
+  const answerOut = $("answerOut");
+  if (!answerOut) return;
+
+  async function doSearch() {
+    const query = $("queryInput").value.trim();
+    if (!query) { toast(t("emptyQuery"), "bad"); return; }
+    answerOut.textContent = "…";
+    $("resultsOut").innerHTML = `<div class="muted">…</div>`;
+    const use_llm = $("useLlm").checked;
+    const top_k = Number($("topK").value) || 3;
+    try {
+      const payload = await api("/search/", { method: "POST", body: { query, use_llm, top_k } });
+      renderSearchResults(payload);
+      toast(t("searchDone"), "ok");
+    } catch (e) {
+      answerOut.innerHTML = `<span class="danger">Error: ${escapeHtml(e.message)}</span>`;
+    }
+  }
+
+  function renderSearchResults(payload) {
+    answerOut.textContent = payload?.answer ?? "—";
+    const list = payload?.top_k_results || [];
+    const out = $("resultsOut");
+    if (!list.length) { out.innerHTML = `<div class="muted">${t("noResults")}</div>`; return; }
+    out.innerHTML = list.map((r) => {
       const title = r.document_title || `document#${r.document_id}`;
-      const meta = r.score !== undefined ? `score=${r.score}` : "";
+      const meta = r.score !== undefined ? `score=${r.score.toFixed(3)}` : "";
       const chunk = r.chunk_index !== undefined ? `chunk=${r.chunk_index}` : "";
       const top = [title, chunk, meta].filter(Boolean).join(" · ");
       const content = r.content_preview || r.content || "";
-      return `
-        <div class="resultItem">
-          <div class="resultItem__top">
-            <span>${escapeHtml(top)}</span>
-            <span class="muted">${escapeHtml(r.chunk_id !== undefined ? `chunk_id=${r.chunk_id}` : "")}</span>
-          </div>
-          <div class="resultItem__content">${escapeHtml(content)}</div>
+      return `<div class="resultItem">
+        <div class="resultItem__top"><span>${escapeHtml(top)}</span></div>
+        <div class="resultItem__content">${escapeHtml(content)}</div>
+      </div>`;
+    }).join("");
+  }
+
+  $("queryInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); doSearch(); }
+  });
+  $("btnSearch").addEventListener("click", () => doSearch());
+  $("btnClearQuery").addEventListener("click", () => { $("queryInput").value = ""; $("queryInput").focus(); });
+}
+
+/* ─────────────────────────────────────────────
+   SETTINGS PAGE — System Status & Documents
+───────────────────────────────────────────── */
+function initSettings() {
+  async function loadHealth() {
+    try {
+      const data = await api("/health/");
+      $("healthOut").textContent = prettyJson(data);
+      toast("health ok", "ok");
+    } catch (e) { $("healthOut").textContent = "Error: " + e.message; }
+  }
+
+  async function loadIndexStats() {
+    try {
+      const data = await api("/health/index");
+      const ntotal = data?.ntotal ?? "?";
+      const version = data?.version ?? "";
+      const ready = data?.ready ?? false;
+      const status = ready ? "✓ Ready" : "✗ Not Ready";
+      $("healthOut").textContent = `Status: ${status}  |  Index docs: ${ntotal}  |  Version: ${version}`;
+      toast("index stats ok", "ok");
+    } catch (e) { $("healthOut").textContent = "Error: " + e.message; }
+  }
+
+  /* ── Docs ── */
+  async function loadDocs() {
+    try {
+      const res = await api("/documents/");
+      state.docs = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      renderDocs();
+      toast(`${t("docsLoaded")}: ${state.docs.length}`, "ok");
+    } catch (e) { toast(e.message, "bad"); }
+  }
+
+  function renderDocs() {
+    const out = $("docsOut");
+    const q = state.docFilter.trim().toLowerCase();
+    const rows = state.docs
+      .map((d) => ({ id: d.id, title: d.title ?? "(untitled)", content: d.content ?? "" }))
+      .filter((d) => {
+        if (!q) return true;
+        return d.title.toLowerCase().includes(q) || d.content.toLowerCase().includes(q);
+      });
+    if (!rows.length) { out.innerHTML = `<div class="muted">${t("noDocs")}</div>`; return; }
+    out.innerHTML = rows.map((d) => {
+      const preview = d.content.slice(0, 180) + (d.content.length > 180 ? "…" : "");
+      return `<div class="docRow" data-docid="${d.id}">
+        <div class="docRow__title">${escapeHtml(d.title)}</div>
+        <div class="docRow__meta"><span>#${d.id}</span><span>${d.content.length} ${t("chars")}</span></div>
+        <div class="muted" style="white-space:pre-wrap;font-size:12px;margin-bottom:10px">${escapeHtml(preview)}</div>
+        <div class="docRow__actions">
+          <button class="btn btn--sm" data-action="view">${t("docRowView")}</button>
+          <button class="btn btn--sm" data-action="edit">${t("docRowEdit")}</button>
+          <button class="btn btn--sm btn--danger" data-action="delete">${t("docRowDelete")}</button>
         </div>
-      `;
-    })
-    .join("");
-}
-
-async function loadHealth() {
-  const data = await api("/health/");
-  $("healthOut").textContent = prettyJson(data);
-  toast("health ok", "ok");
-}
-
-async function loadIndexStats() {
-  const data = await api("/health/index");
-  $("healthOut").textContent = prettyJson(data);
-  toast("index stats ok", "ok");
-}
-
-async function loadDocs({ silent = false } = {}) {
-  const res = await api("/documents/");
-  const list = res?.data ?? res;
-  state.docs = Array.isArray(list) ? list : [];
-  renderDocs();
-  if (!silent) toast(`加载文档：${state.docs.length} 条`, "ok");
-}
-
-async function apiForm(path, formData) {
-  const url = `${state.apiBase}${path.startsWith("/") ? "" : "/"}${path}`;
-  const res = await fetch(url, { method: "POST", body: formData });
-  const text = await res.text();
-  let data;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
-  }
-  if (!res.ok) {
-    const detail = data?.detail || (typeof data === "string" ? data : JSON.stringify(data));
-    throw new Error(`${res.status} ${res.statusText}${detail ? `: ${detail}` : ""}`);
-  }
-  return data;
-}
-
-async function createDoc() {
-  const title = $("docTitle").value.trim();
-  const content = $("docContent").value;
-  if (!title) throw new Error("标题不能为空");
-  if (!content.trim()) throw new Error("内容不能为空");
-  $("createHint").textContent = "正在创建并切分/向量化…（首次可能较慢）";
-  const doc = await api("/documents/", { method: "POST", body: { title, content } });
-  $("createHint").textContent = `创建成功：#${doc.id}`;
-  toast(`创建成功：#${doc.id}`, "ok");
-  await loadDocs();
-}
-
-async function deleteDoc(id) {
-  await api(`/documents/${id}`, { method: "DELETE" });
-  toast(`已删除：#${id}`, "ok");
-  await loadDocs();
-}
-
-async function viewDoc(id) {
-  const doc = await api(`/documents/${id}`);
-  $("healthOut").textContent = prettyJson(doc);
-  toast(`已载入文档 #${id}（输出到状态栏）`, "ok");
-}
-
-async function editDoc(id) {
-  const doc = await api(`/documents/${id}`);
-  const newTitle = window.prompt("编辑标题（留空表示不修改）", doc.title || "");
-  if (newTitle === null) return;
-  const newContent = window.prompt("编辑内容（留空表示不修改）", doc.content || "");
-  if (newContent === null) return;
-  const body = {};
-  if (newTitle.trim() && newTitle.trim() !== doc.title) body.title = newTitle.trim();
-  if (newContent.trim() && newContent !== doc.content) body.content = newContent;
-  if (!Object.keys(body).length) {
-    toast("未做任何修改", "ok");
-    return;
-  }
-  await api(`/documents/${id}`, { method: "PUT", body });
-  toast(`已更新：#${id}`, "ok");
-  await loadDocs();
-}
-
-function syncQueryCharCount() {
-  const countEl = $("queryCharCount");
-  const el = $("queryInput");
-  if (!countEl || !el) return;
-  const n = el.value.length;
-  const max = el.maxLength || 8000;
-  countEl.textContent = `${n} / ${max}`;
-}
-
-async function copyMarkdown(preId) {
-  const el = $(preId);
-  const text = el?.textContent ?? "";
-  if (!text.trim()) {
-    toast("没有可复制的内容", "bad");
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(text);
-    toast("已复制 Markdown", "ok");
-  } catch {
-    toast("复制失败（浏览器权限）", "bad");
-  }
-}
-
-async function doWrongQuestions() {
-  const source_text = $("wrongInput").value.trim();
-  if (!source_text) throw new Error("请粘贴学习材料");
-  $("wrongMeta").textContent = "生成中…";
-  $("wrongOut").hidden = true;
-  $("wrongPreview").hidden = true;
-  $("wrongActions").hidden = true;
-
-  const use_knowledge_base = $("wrongUseKb").checked;
-  const kb_query = $("wrongKbQuery").value.trim() || null;
-  const top_k = Number($("wrongTopK").value) || 5;
-  const payload = await api("/tools/generate-questions", {
-    method: "POST",
-    body: { source_text, use_knowledge_base, kb_query, top_k },
-  });
-  const md = payload?.markdown ?? "—";
-  $("wrongOut").textContent = md;
-  const cleanMd = md.replace(/```(?:markdown|md)?\n?([\s\S]*?)```/gi, "$1").replace(/^```\s*$/gm, "").trim();
-
-  if (typeof marked !== "undefined") {
-    $("wrongPreview").innerHTML = marked.parse(cleanMd);
-    $("wrongPreview").hidden = false;
-    $("wrongOut").hidden = true;
-    setWrongView("preview");
-  } else {
-    $("wrongOut").hidden = false;
-    setWrongView("raw");
-  }
-  $("wrongActions").hidden = false;
-
-  let meta = "习题已生成";
-  if (use_knowledge_base) meta += ` · 知识库命中 ${payload.kb_hits ?? 0} 条`;
-  $("wrongMeta").textContent = meta;
-
-  renderWrongRefs(payload?.top_k_results || []);
-  toast("习题已生成", "ok");
-}
-
-function setWrongView(view) {
-  $("btnWrongView")?.classList.toggle("btn--active", view === "preview");
-  $("btnWrongRaw")?.classList.toggle("btn--active", view === "raw");
-  if (view === "preview") {
-    $("wrongPreview").hidden = false;
-    $("wrongOut").hidden = true;
-  } else {
-    $("wrongPreview").hidden = true;
-    $("wrongOut").hidden = false;
-  }
-}
-
-function renderWrongRefs(results) {
-  const el = $("wrongRefs");
-  if (!el || !results.length) { el && (el.textContent = ""); return; }
-  const titles = results.slice(0, 3).map((r) => r.document_title || `#${r.document_id}`).join(", ");
-  el.textContent = titles + (results.length > 3 ? ` +${results.length - 3}` : "");
-  el.title = results.map((r) => `${r.document_title || r.document_id}: ${(r.content_preview || "").slice(0, 60)}…`).join("\n");
-}
-
-async function doAnalysis() {
-  const question = $("analysisQuestion").value.trim();
-  if (!question) throw new Error("请输入题目内容");
-  $("analysisMeta").textContent = "解析中…";
-  $("analysisOut").hidden = true;
-  $("analysisPreview").hidden = true;
-  $("analysisActions").hidden = true;
-
-  const answer = $("analysisAnswer").value.trim() || null;
-  const payload = await api("/tools/analyze-question", {
-    method: "POST",
-    body: { question, answer },
-  });
-  const md = payload?.markdown ?? "—";
-  $("analysisOut").textContent = md;
-  const cleanMd = md.replace(/```(?:markdown|md)?\n?([\s\S]*?)```/gi, "$1").replace(/^```\s*$/gm, "").trim();
-
-  if (typeof marked !== "undefined") {
-    $("analysisPreview").innerHTML = marked.parse(cleanMd);
-    $("analysisPreview").hidden = false;
-    $("analysisOut").hidden = true;
-    setAnalysisView("preview");
-  } else {
-    $("analysisOut").hidden = false;
-    setAnalysisView("raw");
-  }
-  $("analysisActions").hidden = false;
-  $("analysisMeta").textContent = "解析完成";
-  toast("解析完成", "ok");
-}
-
-function setAnalysisView(view) {
-  $("btnAnalysisView")?.classList.toggle("btn--active", view === "preview");
-  $("btnAnalysisRaw")?.classList.toggle("btn--active", view === "raw");
-  if (view === "preview") {
-    $("analysisPreview").hidden = false;
-    $("analysisOut").hidden = true;
-  } else {
-    $("analysisPreview").hidden = true;
-    $("analysisOut").hidden = false;
-  }
-}
-
-function clearAnalysisDraft() {
-  $("analysisQuestion").value = "";
-  $("analysisAnswer").value = "";
-  $("analysisOut").textContent = "";
-  $("analysisOut").hidden = true;
-  $("analysisPreview").innerHTML = "";
-  $("analysisPreview").hidden = true;
-  $("analysisActions").hidden = true;
-  $("analysisMeta").textContent = "";
-}
-
-function clearWrongDraft() {
-  $("wrongInput").value = "";
-  $("wrongOut").textContent = "";
-  $("wrongOut").hidden = true;
-  $("wrongActions").hidden = true;
-  $("wrongMeta").textContent = "";
-  $("wrongRefs").textContent = "";
-}
-
-async function downloadMarkdown(text, filename) {
-  const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast(`已下载：${filename}`, "ok");
-}
-
-async function doMarkdownNotes() {
-  const topic = $("notesTopic").value.trim();
-  if (!topic) throw new Error("请输入主题或关键词");
-  $("notesMeta").textContent = "检索并生成中…";
-  $("notesOut").hidden = true;
-  $("notesPreview").hidden = true;
-  $("notesActions").hidden = true;
-  const top_k = Number($("notesTopK").value) || 6;
-  const payload = await api("/tools/markdown-notes", {
-    method: "POST",
-    body: { topic, top_k },
-  });
-  const md = payload?.markdown ?? "—";
-  $("notesOut").textContent = md;
-  $("notesOut").hidden = false;
-  $("notesActions").hidden = false;
-  const n = (payload?.top_k_results || []).length;
-  $("notesMeta").textContent = `检索到 ${n} 条片段 · 已生成 Markdown`;
-
-  saveNotesHistory(topic);
-  saveNotesDraft(topic, md);
-
-  if (typeof marked !== "undefined") {
-    $("notesPreview").innerHTML = marked.parse(md);
-    $("notesPreview").hidden = false;
-    $("notesOut").hidden = true;
-    setActiveView("preview");
-  } else {
-    $("notesOut").hidden = false;
-    $("notesPreview").hidden = true;
-    setActiveView("raw");
+      </div>`;
+    }).join("");
   }
 
-  renderNotesRefs(payload?.top_k_results || []);
-  toast("笔记已生成", "ok");
-}
+  async function deleteDoc(id) {
+    await api(`/documents/${id}`, { method: "DELETE" });
+    toast(`${t("deletedOk")}: #${id}`, "ok");
+    await loadDocs();
+  }
 
-function setActiveView(view) {
-  $("btnNotesView")?.classList.toggle("btn--active", view === "preview");
-  $("btnNotesRaw")?.classList.toggle("btn--active", view === "raw");
-}
+  async function viewDoc(id) {
+    const doc = await api(`/documents/${id}`);
+    $("healthOut").textContent = prettyJson(doc);
+    toast(`#${id} → 状态栏`, "ok");
+  }
 
-function renderNotesRefs(results) {
-  const el = $("notesRefs");
-  if (!el || !results.length) { el && (el.textContent = ""); return; }
-  const titles = results.slice(0, 3).map((r) => r.document_title || `#${r.document_id}`).join(", ");
-  el.textContent = titles + (results.length > 3 ? ` +${results.length - 3}` : "");
-  el.title = results.map((r) => `${r.document_title || r.document_id}: ${(r.content_preview || "").slice(0, 60)}…`).join("\n");
-}
+  async function editDoc(id) {
+    const doc = await api(`/documents/${id}`);
+    const newTitle = window.prompt("编辑标题（留空不修改）", doc.title || "");
+    if (newTitle === null) return;
+    const newContent = window.prompt("编辑内容（留空不修改）", doc.content || "");
+    if (newContent === null) return;
+    const body = {};
+    if (newTitle.trim() && newTitle.trim() !== doc.title) body.title = newTitle.trim();
+    if (newContent.trim() && newContent !== doc.content) body.content = newContent;
+    if (!Object.keys(body).length) { toast(t("noModification"), "ok"); return; }
+    await api(`/documents/${id}`, { method: "PUT", body });
+    toast(`${t("updated")}: #${id}`, "ok");
+    await loadDocs();
+  }
 
-function saveNotesHistory(topic) {
-  try {
-    const raw = localStorage.getItem("notes_history") || "[]";
-    const arr = JSON.parse(raw);
-    const filtered = arr.filter((t) => t !== topic);
-    const updated = [topic, ...filtered].slice(0, 20);
-    localStorage.setItem("notes_history", JSON.stringify(updated));
-    renderNotesHistory();
-  } catch {}
-}
+  async function createDoc() {
+    const title = $("docTitle").value.trim();
+    const content = $("docContent").value;
+    if (!title) { toast(t("emptyTitle"), "bad"); return; }
+    if (!content.trim()) { toast(t("emptyContent"), "bad"); return; }
+    $("createHint").textContent = t("creating");
+    const doc = await api("/documents/", { method: "POST", body: { title, content } });
+    $("createHint").textContent = `${t("createdOk")}: #${doc.id}`;
+    toast(`${t("createdOk")}: #${doc.id}`, "ok");
+    $("docTitle").value = ""; $("docContent").value = "";
+    await loadDocs();
+  }
 
-function renderNotesHistory() {
-  try {
-    const raw = localStorage.getItem("notes_history") || "[]";
-    const arr = JSON.parse(raw);
-    const dl = $("notesHistory");
-    if (!dl) return;
-    dl.innerHTML = arr.map((t) => `<option value="${escapeHtml(t)}">`).join("");
-  } catch {}
-}
+  async function handleDocxFile(file) {
+    if (!file.name.toLowerCase().endsWith(".docx")) { toast(t("onlyDocx"), "bad"); return; }
+    if (file.size > 20 * 1024 * 1024) { toast(t("fileSizeLimit"), "bad"); return; }
+    $("createHint").textContent = t("parsing");
+    try {
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      const doc = await apiForm("/documents/import-docx", fd);
+      $("docTitle").value = ""; $("docContent").value = "";
+      $("createHint").textContent = `${t("importedOk")} #${doc.id}：${doc.title}`;
+      toast(`${t("importedOk")} #${doc.id}`, "ok");
+      await loadDocs();
+    } catch (e) { $("createHint").textContent = e.message; toast(e.message, "bad"); }
+  }
 
-function saveNotesDraft(topic, md) {
-  try {
-    localStorage.setItem("notes_draft", JSON.stringify({ topic, md, ts: Date.now() }));
-  } catch {}
-}
-
-function loadNotesDraft() {
-  try {
-    const raw = localStorage.getItem("notes_draft");
-    if (!raw) return;
-    const { topic, md } = JSON.parse(raw);
-    if (!topic || !md) return;
-    if (Date.now() - (JSON.parse(raw).ts || 0) > 7 * 24 * 60 * 60 * 1000) {
-      localStorage.removeItem("notes_draft");
-      return;
-    }
-    $("notesTopic").value = topic;
-    $("notesOut").textContent = md;
-    $("notesOut").hidden = false;
-    $("notesActions").hidden = false;
-    $("notesMeta").textContent = "（上次生成的笔记已自动恢复）";
-    if (typeof marked !== "undefined") {
-      $("notesPreview").innerHTML = marked.parse(md);
-      $("notesPreview").hidden = false;
-      $("notesOut").hidden = true;
-      setActiveView("preview");
-    }
-    renderNotesRefs([]);
-  } catch {}
-}
-
-function clearNotesDraft() {
-  $("notesTopic").value = "";
-  $("notesOut").textContent = "";
-  $("notesOut").hidden = true;
-  $("notesPreview").innerHTML = "";
-  $("notesPreview").hidden = true;
-  $("notesActions").hidden = true;
-  $("notesMeta").textContent = "";
-  localStorage.removeItem("notes_draft");
-}
-
-async function doSearch() {
-  const query = $("queryInput").value.trim();
-  if (!query) throw new Error("请输入问题");
-  $("answerOut").textContent = "检索中…";
-  $("resultsOut").innerHTML = `<div class="muted">检索中…</div>`;
-  const use_llm = $("useLlm").checked;
-  const top_k = Number($("topK").value) || 3;
-  const payload = await api("/search/", {
-    method: "POST",
-    body: { query, use_llm, top_k },
-  });
-  renderSearchResults(payload);
-  toast("搜索完成", "ok");
-}
-
-function bindEvents() {
-  $("btnReload").addEventListener("click", () => window.location.reload());
-  $("btnTheme").addEventListener("click", toggleTheme);
-  document.querySelectorAll(".langSwitch__btn").forEach((btn) => {
-    btn.addEventListener("click", () => applyI18n(btn.getAttribute("data-lang")));
-  });
-  $("btnHealth").addEventListener("click", () => loadHealth().catch((e) => toast(e.message, "bad")));
-  $("btnIndex").addEventListener("click", () => loadIndexStats().catch((e) => toast(e.message, "bad")));
-  $("btnLoadDocs").addEventListener("click", () => loadDocs().catch((e) => toast(e.message, "bad")));
-  $("btnCreateDoc").addEventListener("click", () => {
-    createDoc().catch((e) => {
-      $("createHint").textContent = e.message;
-      toast(e.message, "bad");
-    });
-  });
+  /* ── Event Bindings ── */
+  $("btnHealth").addEventListener("click", loadHealth);
+  $("btnIndex").addEventListener("click", loadIndexStats);
+  $("btnLoadDocs").addEventListener("click", () => loadDocs());
+  $("btnCreateDoc").addEventListener("click", () => createDoc());
   $("btnClearCreate").addEventListener("click", () => {
-    $("docTitle").value = "";
-    $("docContent").value = "";
-    $("createHint").textContent = "";
+    $("docTitle").value = ""; $("docContent").value = ""; $("createHint").textContent = "";
   });
+  $("docFilter").addEventListener("input", (e) => { state.docFilter = e.target.value; renderDocs(); });
 
   const dropzone = $("dropzone");
   const fileInput = $("fileInput");
   const btnSelectFile = $("btnSelectFile");
-
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("dropzone--dragover");
-  });
-  dropzone.addEventListener("dragleave", () => {
-    dropzone.classList.remove("dropzone--dragover");
-  });
+  dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dropzone--dragover"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dropzone--dragover"));
   dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("dropzone--dragover");
+    e.preventDefault(); dropzone.classList.remove("dropzone--dragover");
     const file = e.dataTransfer?.files?.[0];
     if (file) handleDocxFile(file);
   });
   dropzone.addEventListener("click", () => fileInput.click());
-  dropzone.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      fileInput.click();
-    }
-  });
-  btnSelectFile.addEventListener("click", (e) => {
-    e.stopPropagation();
-    fileInput.click();
-  });
-  fileInput.addEventListener("change", () => {
-    const file = fileInput.files?.[0];
-    if (file) handleDocxFile(file);
-    fileInput.value = "";
-  });
-  $("docFilter").addEventListener("input", (e) => {
-    state.docFilter = e.target.value;
-    renderDocs();
-  });
-  $("queryInput").addEventListener("input", syncQueryCharCount);
-  $("queryInput").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      doSearch().catch((err) => toast(err.message, "bad"));
-    }
-  });
-  $("btnClearQuery").addEventListener("click", () => {
-    $("queryInput").value = "";
-    syncQueryCharCount();
-    $("queryInput").focus();
-  });
-  $("btnSearch").addEventListener("click", () => doSearch().catch((e) => toast(e.message, "bad")));
-
-  $("wrongUseKb").addEventListener("change", () => {
-    $("wrongKbRow").classList.toggle("is-hidden", !$("wrongUseKb").checked);
-  });
-  $("btnWrongView").addEventListener("click", () => setWrongView("preview"));
-  $("btnWrongRaw").addEventListener("click", () => setWrongView("raw"));
-  $("btnWrongGo").addEventListener("click", () =>
-    doWrongQuestions().catch((e) => {
-      $("wrongMeta").textContent = e.message;
-      toast(e.message, "bad");
-    }),
-  );
-  $("btnWrongClear").addEventListener("click", clearWrongDraft);
-  $("btnWrongCopy").addEventListener("click", () => copyMarkdown("wrongOut"));
-  $("btnWrongDownload").addEventListener("click", () => {
-    const md = $("wrongOut").textContent;
-    const filename = `习题_${Date.now()}.md`;
-    downloadMarkdown(md, filename);
-  });
-  $("btnNotesGo").addEventListener("click", () =>
-    doMarkdownNotes().catch((e) => {
-      $("notesMeta").textContent = e.message;
-      toast(e.message, "bad");
-    }),
-  );
-  $("btnNotesClear").addEventListener("click", clearNotesDraft);
-  $("btnNotesCopy").addEventListener("click", () => copyMarkdown("notesOut"));
-  $("btnNotesDownload").addEventListener("click", () => {
-    const md = $("notesOut").textContent;
-    const topic = $("notesTopic").value.trim() || "笔记";
-    const filename = `${topic.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, "_")}.md`;
-    downloadMarkdown(md, filename);
-  });
-  $("btnNotesView").addEventListener("click", () => {
-    $("notesPreview").hidden = false;
-    $("notesOut").hidden = true;
-    setActiveView("preview");
-  });
-  $("btnNotesRaw").addEventListener("click", () => {
-    $("notesPreview").hidden = true;
-    $("notesOut").hidden = false;
-    setActiveView("raw");
-  });
-  $("btnAnalysisGo").addEventListener("click", () =>
-    doAnalysis().catch((e) => {
-      $("analysisMeta").textContent = e.message;
-      toast(e.message, "bad");
-    }),
-  );
-  $("btnAnalysisClear").addEventListener("click", clearAnalysisDraft);
-  $("btnAnalysisView").addEventListener("click", () => setAnalysisView("preview"));
-  $("btnAnalysisRaw").addEventListener("click", () => setAnalysisView("raw"));
-  $("btnAnalysisCopy").addEventListener("click", () => copyMarkdown("analysisOut"));
-  $("btnWrongCopy").addEventListener("click", () => copyMarkdown("wrongOut"));
+  dropzone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+  btnSelectFile.addEventListener("click", (e) => { e.stopPropagation(); fileInput.click(); });
+  fileInput.addEventListener("change", () => { const file = fileInput.files?.[0]; if (file) handleDocxFile(file); fileInput.value = ""; });
 
   $("docsOut").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-action]");
@@ -784,50 +550,520 @@ function bindEvents() {
     const id = row.getAttribute("data-docid");
     const action = btn.getAttribute("data-action");
     if (!id) return;
-    const docId = Number(id);
     if (action === "delete") {
-      if (window.confirm(`确认删除文档 #${docId}？`)) {
-        deleteDoc(docId).catch((err) => toast(err.message, "bad"));
-      }
+      if (window.confirm(t("confirmDelete"))) deleteDoc(Number(id)).catch((err) => toast(err.message, "bad"));
     } else if (action === "view") {
-      viewDoc(docId).catch((err) => toast(err.message, "bad"));
+      viewDoc(Number(id)).catch((err) => toast(err.message, "bad"));
     } else if (action === "edit") {
-      editDoc(docId).catch((err) => toast(err.message, "bad"));
+      editDoc(Number(id)).catch((err) => toast(err.message, "bad"));
     }
+  });
+
+  loadDocs();
+}
+
+/* ─────────────────────────────────────────────
+   DOCUMENTS PAGE — Document Management
+───────────────────────────────────────────── */
+function initDocuments() {
+  if (!$("docsOut")) return;
+
+  async function loadDocs() {
+    try {
+      const res = await api("/documents/");
+      state.docs = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      renderDocs();
+      toast(`${t("docsLoaded")}: ${state.docs.length}`, "ok");
+    } catch (e) { toast(e.message, "bad"); }
+  }
+
+  function renderDocs() {
+    const out = $("docsOut");
+    const q = state.docFilter.trim().toLowerCase();
+    const rows = state.docs
+      .map((d) => ({ id: d.id, title: d.title ?? "(untitled)", content: d.content ?? "" }))
+      .filter((d) => {
+        if (!q) return true;
+        return d.title.toLowerCase().includes(q) || d.content.toLowerCase().includes(q);
+      });
+    if (!rows.length) { out.innerHTML = `<div class="muted">${t("noDocs")}</div>`; return; }
+    out.innerHTML = rows.map((d) => {
+      const preview = d.content.slice(0, 180) + (d.content.length > 180 ? "…" : "");
+      return `<div class="docRow" data-docid="${d.id}">
+        <div class="docRow__title">${escapeHtml(d.title)}</div>
+        <div class="docRow__meta"><span>#${d.id}</span><span>${d.content.length} ${t("chars")}</span></div>
+        <div class="muted" style="white-space:pre-wrap;font-size:12px;margin-bottom:10px">${escapeHtml(preview)}</div>
+        <div class="docRow__actions">
+          <button class="btn btn--sm" data-action="view">${t("docRowView")}</button>
+          <button class="btn btn--sm" data-action="edit">${t("docRowEdit")}</button>
+          <button class="btn btn--sm btn--danger" data-action="delete">${t("docRowDelete")}</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  async function deleteDoc(id) {
+    await api(`/documents/${id}`, { method: "DELETE" });
+    toast(`${t("deletedOk")}: #${id}`, "ok");
+    await loadDocs();
+  }
+
+  async function viewDoc(id) {
+    const doc = await api(`/documents/${id}`);
+    $("healthOut").textContent = prettyJson(doc);
+    toast(`#${id} → 状态栏`, "ok");
+  }
+
+  async function editDoc(id) {
+    const doc = await api(`/documents/${id}`);
+    const newTitle = window.prompt("编辑标题（留空不修改）", doc.title || "");
+    if (newTitle === null) return;
+    const newContent = window.prompt("编辑内容（留空不修改）", doc.content || "");
+    if (newContent === null) return;
+    const body = {};
+    if (newTitle.trim() && newTitle.trim() !== doc.title) body.title = newTitle.trim();
+    if (newContent.trim() && newContent !== doc.content) body.content = newContent;
+    if (!Object.keys(body).length) { toast(t("noModification"), "ok"); return; }
+    await api(`/documents/${id}`, { method: "PUT", body });
+    toast(`${t("updated")}: #${id}`, "ok");
+    await loadDocs();
+  }
+
+  async function createDoc() {
+    const title = $("docTitle").value.trim();
+    const content = $("docContent").value;
+    if (!title) { toast(t("emptyTitle"), "bad"); return; }
+    if (!content.trim()) { toast(t("emptyContent"), "bad"); return; }
+    $("createHint").textContent = t("creating");
+    const doc = await api("/documents/", { method: "POST", body: { title, content } });
+    $("createHint").textContent = `${t("createdOk")}: #${doc.id}`;
+    toast(`${t("createdOk")}: #${doc.id}`, "ok");
+    $("docTitle").value = ""; $("docContent").value = "";
+    await loadDocs();
+  }
+
+  async function handleDocxFile(file) {
+    if (!file.name.toLowerCase().endsWith(".docx")) { toast(t("onlyDocx"), "bad"); return; }
+    if (file.size > 20 * 1024 * 1024) { toast(t("fileSizeLimit"), "bad"); return; }
+    $("createHint").textContent = t("parsing");
+    try {
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      const doc = await apiForm("/documents/import-docx", fd);
+      $("docTitle").value = ""; $("docContent").value = "";
+      $("createHint").textContent = `${t("importedOk")} #${doc.id}：${doc.title}`;
+      toast(`${t("importedOk")} #${doc.id}`, "ok");
+      await loadDocs();
+    } catch (e) { $("createHint").textContent = e.message; toast(e.message, "bad"); }
+  }
+
+  $("btnLoadDocs").addEventListener("click", () => loadDocs());
+  $("btnCreateDoc").addEventListener("click", () => createDoc());
+  $("btnClearCreate").addEventListener("click", () => {
+    $("docTitle").value = ""; $("docContent").value = ""; $("createHint").textContent = "";
+  });
+  $("docFilter").addEventListener("input", (e) => { state.docFilter = e.target.value; renderDocs(); });
+
+  const dropzone = $("dropzone");
+  const fileInput = $("fileInput");
+  const btnSelectFile = $("btnSelectFile");
+  dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dropzone--dragover"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dropzone--dragover"));
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault(); dropzone.classList.remove("dropzone--dragover");
+    const file = e.dataTransfer?.files?.[0];
+    if (file) handleDocxFile(file);
+  });
+  dropzone.addEventListener("click", () => fileInput.click());
+  dropzone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+  btnSelectFile.addEventListener("click", (e) => { e.stopPropagation(); fileInput.click(); });
+  fileInput.addEventListener("change", () => { const file = fileInput.files?.[0]; if (file) handleDocxFile(file); fileInput.value = ""; });
+
+  $("docsOut").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const row = e.target.closest(".docRow");
+    if (!row) return;
+    const id = row.getAttribute("data-docid");
+    const action = btn.getAttribute("data-action");
+    if (!id) return;
+    if (action === "delete") {
+      if (window.confirm(t("confirmDelete"))) deleteDoc(Number(id)).catch((err) => toast(err.message, "bad"));
+    } else if (action === "view") {
+      viewDoc(Number(id)).catch((err) => toast(err.message, "bad"));
+    } else if (action === "edit") {
+      editDoc(Number(id)).catch((err) => toast(err.message, "bad"));
+    }
+  });
+
+  loadDocs();
+}
+
+/* ─────────────────────────────────────────────
+   QUESTIONS PAGE — Generate Questions
+───────────────────────────────────────────── */
+function initQuestions() {
+  if (!$("wrongInput")) return;
+
+  let questionsMd = "";
+
+  function stripMd(md) {
+    return (md || "").replace(/```(?:markdown|md)?\n?[\s\S]*?```/gi, "").replace(/^```\s*$/gm, "").trim();
+  }
+
+  function renderMdPreview(previewId, outId, md) {
+    const preview = $(previewId);
+    const out = $(outId);
+    if (!md || !md.trim()) { preview.innerHTML = `<span class="muted">—</span>`; return; }
+    const clean = stripMd(md);
+    if (typeof marked !== "undefined") {
+      preview.innerHTML = marked.parse(clean);
+      preview.hidden = false;
+      out.hidden = true;
+    } else {
+      out.textContent = md;
+      out.hidden = false;
+      preview.hidden = true;
+    }
+  }
+
+  function downloadMd(text, filename) {
+    const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(URL);
+    toast(`${t("downloadedOk")}: ${filename}`, "ok");
+  }
+
+  function copyMd(preId) {
+    const text = $(preId)?.textContent ?? "";
+    if (!text.trim()) { toast(t("emptyMaterial"), "bad"); return; }
+    copyText(text).then(() => toast(t("copiedMd"), "ok")).catch(() => toast(t("copiedFail"), "bad"));
+  }
+
+  async function doQuestions() {
+    const source_text = $("wrongInput").value.trim();
+    if (!source_text) { toast(t("emptyMaterial"), "bad"); return; }
+    $("wrongMeta").textContent = "…";
+    $("wrongOut").hidden = true; $("wrongPreview").hidden = true; $("wrongActions").hidden = true;
+    const use_knowledge_base = $("wrongUseKb").checked;
+    const kb_query = $("wrongKbQuery").value.trim() || null;
+    const top_k = Number($("wrongTopK").value) || 5;
+    try {
+      const payload = await api("/tools/generate-questions", {
+        method: "POST", body: { source_text, use_knowledge_base, kb_query, top_k },
+      });
+      questionsMd = payload?.markdown ?? "—";
+      $("wrongOut").textContent = questionsMd;
+      renderMdPreview("wrongPreview", "wrongOut", questionsMd);
+      $("wrongActions").hidden = false;
+      let meta = t("questionsDone");
+      if (use_knowledge_base) meta += ` · ${t("kbHits")} ${payload.kb_hits ?? 0}`;
+      $("wrongMeta").textContent = meta;
+      const el = $("wrongRefs");
+      if (el) {
+        const results = payload?.top_k_results || [];
+        const titles = results.slice(0, 3).map((r) => r.document_title || `#${r.document_id}`).join(", ");
+        el.textContent = titles + (results.length > 3 ? ` +${results.length - 3}` : "");
+      }
+      toast(t("questionsDone"), "ok");
+    } catch (e) {
+      $("wrongMeta").textContent = e.message;
+      toast(e.message, "bad");
+    }
+  }
+
+  function setQuestionsView(view) {
+    $("btnWrongView")?.classList.toggle("btn--active", view === "preview");
+    $("btnWrongRaw")?.classList.toggle("btn--active", view === "raw");
+    if (view === "preview") { $("wrongPreview").hidden = false; $("wrongOut").hidden = true; }
+    else { $("wrongPreview").hidden = true; $("wrongOut").hidden = false; }
+  }
+
+  $("wrongUseKb").addEventListener("change", () => {
+    $("wrongKbRow").classList.toggle("is-hidden", !$("wrongUseKb").checked);
+  });
+  $("btnWrongGo").addEventListener("click", doQuestions);
+  $("btnWrongClear").addEventListener("click", () => {
+    $("wrongInput").value = ""; $("wrongMeta").textContent = "";
+    $("wrongOut").textContent = ""; $("wrongOut").hidden = true;
+    $("wrongPreview").innerHTML = ""; $("wrongPreview").hidden = true;
+    $("wrongActions").hidden = true; questionsMd = "";
+  });
+  $("btnWrongView").addEventListener("click", () => setQuestionsView("preview"));
+  $("btnWrongRaw").addEventListener("click", () => setQuestionsView("raw"));
+  $("btnWrongCopy").addEventListener("click", () => copyMd("wrongOut"));
+  $("btnWrongDownload").addEventListener("click", () => {
+    const fn = `questions_${Date.now()}.md`;
+    downloadMd($("wrongOut").textContent || questionsMd, fn);
   });
 }
 
-async function handleDocxFile(file) {
-  if (!file.name.toLowerCase().endsWith(".docx")) {
-    toast("仅支持 .docx 文件", "bad");
-    return;
+/* ─────────────────────────────────────────────
+   NOTES PAGE — Generate Notes
+───────────────────────────────────────────── */
+function initNotes() {
+  if (!$("notesTopic")) return;
+
+  let notesMd = "";
+
+  function stripMd(md) {
+    return (md || "").replace(/```(?:markdown|md)?\n?[\s\S]*?```/gi, "").replace(/^```\s*$/gm, "").trim();
   }
-  $("createHint").textContent = "正在上传并由服务端解析 docx、写入索引…";
+
+  function renderMdPreview(previewId, outId, md) {
+    const preview = $(previewId);
+    const out = $(outId);
+    if (!md || !md.trim()) { preview.innerHTML = `<span class="muted">—</span>`; return; }
+    const clean = stripMd(md);
+    if (typeof marked !== "undefined") {
+      preview.innerHTML = marked.parse(clean);
+      preview.hidden = false;
+      out.hidden = true;
+    } else {
+      out.textContent = md;
+      out.hidden = false;
+      preview.hidden = true;
+    }
+  }
+
+  function downloadMd(text, filename) {
+    const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(URL);
+    toast(`${t("downloadedOk")}: ${filename}`, "ok");
+  }
+
+  function copyMd(preId) {
+    const text = $(preId)?.textContent ?? "";
+    if (!text.trim()) { toast(t("emptyMaterial"), "bad"); return; }
+    copyText(text).then(() => toast(t("copiedMd"), "ok")).catch(() => toast(t("copiedFail"), "bad"));
+  }
+
+  function saveNotesHistory(topic) {
+    try {
+      const raw = localStorage.getItem("notes_history") || "[]";
+      const arr = JSON.parse(raw);
+      const filtered = arr.filter((x) => x !== topic);
+      localStorage.setItem("notes_history", JSON.stringify([topic, ...filtered].slice(0, 20)));
+      renderNotesHistory();
+    } catch {}
+  }
+
+  function renderNotesHistory() {
+    try {
+      const raw = localStorage.getItem("notes_history") || "[]";
+      const arr = JSON.parse(raw);
+      const dl = $("notesHistory");
+      if (!dl) return;
+      dl.innerHTML = arr.map((x) => `<option value="${escapeHtml(x)}">`).join("");
+    } catch {}
+  }
+
+  function saveNotesDraft(topic, md) {
+    try { localStorage.setItem("notes_draft", JSON.stringify({ topic, md, ts: Date.now() })); } catch {}
+  }
+
+  function loadNotesDraft() {
+    try {
+      const raw = localStorage.getItem("notes_draft");
+      if (!raw) return;
+      const { topic, md, ts } = JSON.parse(raw);
+      if (!topic || !md) return;
+      if (Date.now() - ts > 7 * 24 * 60 * 60 * 1000) { localStorage.removeItem("notes_draft"); return; }
+      $("notesTopic").value = topic;
+      notesMd = md;
+      $("notesOut").textContent = md;
+      renderMdPreview("notesPreview", "notesOut", md);
+      $("notesActions").hidden = false;
+      $("notesMeta").textContent = t("draftRestored");
+    } catch {}
+  }
+
+  async function doNotes() {
+    const topic = $("notesTopic").value.trim();
+    if (!topic) { toast(t("emptyTopic"), "bad"); return; }
+    $("notesMeta").textContent = "…";
+    $("notesOut").hidden = true; $("notesPreview").hidden = true; $("notesActions").hidden = true;
+    const top_k = Number($("notesTopK").value) || 6;
+    try {
+      const payload = await api("/tools/markdown-notes", { method: "POST", body: { topic, top_k } });
+      notesMd = payload?.markdown ?? "—";
+      $("notesOut").textContent = notesMd;
+      renderMdPreview("notesPreview", "notesOut", notesMd);
+      $("notesActions").hidden = false;
+      const n = (payload?.top_k_results || []).length;
+      $("notesMeta").textContent = `${t("retrieved")} ${n} ${t("chars")} · Markdown ${t("notesDone")}`;
+      saveNotesHistory(topic);
+      saveNotesDraft(topic, notesMd);
+      const el = $("notesRefs");
+      if (el) {
+        const results = payload?.top_k_results || [];
+        const titles = results.slice(0, 3).map((r) => r.document_title || `#${r.document_id}`).join(", ");
+        el.textContent = titles + (results.length > 3 ? ` +${results.length - 3}` : "");
+      }
+      toast(t("notesDone"), "ok");
+    } catch (e) {
+      $("notesMeta").textContent = e.message;
+      toast(e.message, "bad");
+    }
+  }
+
+  function setNotesView(view) {
+    $("btnNotesView")?.classList.toggle("btn--active", view === "preview");
+    $("btnNotesRaw")?.classList.toggle("btn--active", view === "raw");
+    if (view === "preview") { $("notesPreview").hidden = false; $("notesOut").hidden = true; }
+    else { $("notesPreview").hidden = true; $("notesOut").hidden = false; }
+  }
+
+  $("btnNotesGo").addEventListener("click", doNotes);
+  $("btnNotesClear").addEventListener("click", () => {
+    $("notesTopic").value = ""; $("notesMeta").textContent = "";
+    $("notesOut").textContent = ""; $("notesOut").hidden = true;
+    $("notesPreview").innerHTML = ""; $("notesPreview").hidden = true;
+    $("notesActions").hidden = true; notesMd = "";
+    localStorage.removeItem("notes_draft");
+  });
+  $("btnNotesView").addEventListener("click", () => setNotesView("preview"));
+  $("btnNotesRaw").addEventListener("click", () => setNotesView("raw"));
+  $("btnNotesCopy").addEventListener("click", () => copyMd("notesOut"));
+  $("btnNotesDownload").addEventListener("click", () => {
+    const topic = $("notesTopic").value.trim() || "notes";
+    const fn = `${topic.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, "_")}.md`;
+    downloadMd($("notesOut").textContent || notesMd, fn);
+  });
+
+  loadNotesDraft();
+  renderNotesHistory();
+}
+
+/* ─────────────────────────────────────────────
+   ANALYSIS PAGE — Question Analysis
+───────────────────────────────────────────── */
+function initAnalysis() {
+  if (!$("analysisQuestion")) return;
+
+  let analysisMd = "";
+
+  function stripMd(md) {
+    return (md || "").replace(/```(?:markdown|md)?\n?[\s\S]*?```/gi, "").replace(/^```\s*$/gm, "").trim();
+  }
+
+  function renderMdPreview(previewId, outId, md) {
+    const preview = $(previewId);
+    const out = $(outId);
+    if (!md || !md.trim()) { preview.innerHTML = `<span class="muted">—</span>`; return; }
+    const clean = stripMd(md);
+    if (typeof marked !== "undefined") {
+      preview.innerHTML = marked.parse(clean);
+      preview.hidden = false;
+      out.hidden = true;
+    } else {
+      out.textContent = md;
+      out.hidden = false;
+      preview.hidden = true;
+    }
+  }
+
+  function copyMd(preId) {
+    const text = $(preId)?.textContent ?? "";
+    if (!text.trim()) { toast(t("emptyMaterial"), "bad"); return; }
+    copyText(text).then(() => toast(t("copiedMd"), "ok")).catch(() => toast(t("copiedFail"), "bad"));
+  }
+
+  async function doAnalysis() {
+    const question = $("analysisQuestion").value.trim();
+    if (!question) { toast(t("emptyQuestion"), "bad"); return; }
+    $("analysisMeta").textContent = "…";
+    $("analysisOut").hidden = true; $("analysisPreview").hidden = true; $("analysisActions").hidden = true;
+    const answer = $("analysisAnswer").value.trim() || null;
+    try {
+      const payload = await api("/tools/analyze-question", {
+        method: "POST", body: { question, answer },
+      });
+      analysisMd = payload?.markdown ?? "—";
+      $("analysisOut").textContent = analysisMd;
+      renderMdPreview("analysisPreview", "analysisOut", analysisMd);
+      $("analysisActions").hidden = false;
+      $("analysisMeta").textContent = t("analysisDone");
+      toast(t("analysisDone"), "ok");
+    } catch (e) {
+      $("analysisMeta").textContent = e.message;
+      toast(e.message, "bad");
+    }
+  }
+
+  function setAnalysisView(view) {
+    $("btnAnalysisView")?.classList.toggle("btn--active", view === "preview");
+    $("btnAnalysisRaw")?.classList.toggle("btn--active", view === "raw");
+    if (view === "preview") { $("analysisPreview").hidden = false; $("analysisOut").hidden = true; }
+    else { $("analysisPreview").hidden = true; $("analysisOut").hidden = false; }
+  }
+
+  $("btnAnalysisGo").addEventListener("click", doAnalysis);
+  $("btnAnalysisClear").addEventListener("click", () => {
+    $("analysisQuestion").value = ""; $("analysisAnswer").value = "";
+    $("analysisMeta").textContent = "";
+    $("analysisOut").textContent = ""; $("analysisOut").hidden = true;
+    $("analysisPreview").innerHTML = ""; $("analysisPreview").hidden = true;
+    $("analysisActions").hidden = true; analysisMd = "";
+  });
+  $("btnAnalysisView").addEventListener("click", () => setAnalysisView("preview"));
+  $("btnAnalysisRaw").addEventListener("click", () => setAnalysisView("raw"));
+  $("btnAnalysisCopy").addEventListener("click", () => copyMd("analysisOut"));
+}
+
+/* ─────────────────────────────────────────────
+   SHARED INIT
+───────────────────────────────────────────── */
+function initLangSwitch() {
+  document.querySelectorAll(".langSwitch__btn").forEach((btn) => {
+    btn.addEventListener("click", () => applyI18n(btn.getAttribute("data-lang")));
+  });
+}
+
+function initApiBasePill() {
   try {
-    const fd = new FormData();
-    fd.append("file", file, file.name);
-    const doc = await apiForm("/documents/import-docx", fd);
-    $("docTitle").value = "";
-    $("docContent").value = "";
-    $("createHint").textContent = `已导入文档 #${doc.id}：${doc.title}`;
-    toast(`已导入文档 #${doc.id}`, "ok");
-    await loadDocs({ silent: true });
-  } catch (e) {
-    $("createHint").textContent = e.message;
-    toast(e.message, "bad");
+    const u = new URL(state.apiBase);
+    $("apiBasePill").textContent = u.host;
+  } catch {
+    $("apiBasePill").textContent = state.apiBase;
   }
 }
 
 function init() {
   initTheme();
   applyI18n(currentLang);
+  initLangSwitch();
   setApiBase(state.apiBase);
-  bindEvents();
-  syncQueryCharCount();
-  renderNotesHistory();
-  loadNotesDraft();
-  loadDocs().catch(() => {});
+  initApiBasePill();
+  $("btnTheme").addEventListener("click", toggleTheme);
+
+  const path = location.pathname;
+  if (path === "/" || path === "") {
+    initHome();
+  } else if (path === "/documents") {
+    initDocuments();
+  } else if (path === "/qa") {
+    initQA();
+  } else if (path === "/questions") {
+    initQuestions();
+  } else if (path === "/notes") {
+    initNotes();
+  } else if (path === "/analysis") {
+    initAnalysis();
+  } else if (path === "/settings") {
+    initSettings();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);
-

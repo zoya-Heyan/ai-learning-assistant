@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI RAG System — Settings</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/settings" class="nav__item nav__item--active" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+            <span class="nav__label" data-i18n="navSettings">设置</span>
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-settings">
+      <section class="card">
+        <div class="card__title" data-i18n="systemStatus">系统状态</div>
+        <div class="row row--gap">
+          <button class="btn" id="btnHealth">/health</button>
+          <button class="btn" id="btnIndex">/health/index</button>
+        </div>
+        <pre class="pre" id="healthOut" data-i18n="healthOut">点击上面的按钮查看状态…</pre>
+      </section>
+
+      <section class="card card--span2">
+        <div class="card__title" data-i18n="docManagement">文档管理</div>
+        <div class="grid2">
+          <div class="card card--inner">
+            <div class="card__title card__title--sm" data-i18n="addDoc">新增文档</div>
+            <div class="field">
+              <label class="label" for="docTitle" data-i18n="docTitleLabel">标题</label>
+              <input id="docTitle" class="input" placeholder="文档标题" />
+            </div>
+            <div class="field">
+              <label class="label" for="docContent" data-i18n="docContentLabel">内容</label>
+              <textarea id="docContent" class="input" rows="10" placeholder="粘贴或输入文档内容…"></textarea>
+            </div>
+            <div class="field">
+              <label class="label" for="fileInput" data-i18n="importWordLabel">从 Word 导入（.docx）</label>
+              <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="上传 docx 文件">
+                <div class="dropzone__inner">
+                  <div class="dropzone__icon">📄</div>
+                  <div class="dropzone__text" data-i18n="dropzoneText">拖拽 .docx 到此处，或点击下方选择文件</div>
+                  <div class="dropzone__hint" data-i18n="dropzoneHint">服务端解析后自动创建文档并建索引（≤20MB）</div>
+                  <div class="dropzone__or" data-i18n="dropzoneOr">或</div>
+                  <button type="button" class="btn btn--ghost" id="btnSelectFile" data-i18n="selectDocx">选择 .docx</button>
+                  <input type="file" id="fileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden />
+                </div>
+              </div>
+            </div>
+            <div class="row row--gap">
+              <button class="btn btn--primary" id="btnCreateDoc" data-i18n="btnCreate">创建</button>
+              <button class="btn btn--ghost" id="btnClearCreate" data-i18n="btnClear">清空</button>
+            </div>
+            <div class="hint" id="createHint"></div>
+          </div>
+
+          <div class="card card--inner">
+            <div class="row row--between row--gap">
+              <div class="card__title card__title--sm" data-i18n="docList">文档列表</div>
+              <button class="btn" id="btnLoadDocs" data-i18n="btnRefreshList">刷新列表</button>
+            </div>
+            <div class="field">
+              <label class="label" for="docFilter" data-i18n="filterLabel">过滤</label>
+              <input id="docFilter" class="input" placeholder="按标题/内容关键字过滤…" />
+            </div>
+            <div class="docs" id="docsOut"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
