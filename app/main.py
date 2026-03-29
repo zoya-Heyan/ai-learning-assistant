@@ -64,3 +64,10 @@ def root():
     if home.exists():
         return FileResponse(home)
     return {"message": "Welcome to AI RAG system"}
+
+@app.get("/study-plan")
+def study_plan_page():
+    sp = STATIC_DIR / "study_plan.html"
+    if sp.exists():
+        return FileResponse(sp)
+    return {"message": "Study Plan page"}

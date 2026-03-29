@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI RAG System — 学习计划</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+     
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/documents" class="nav__item" data-nav="documents">
+      
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
+          </a>
+          <a href="/qa" class="nav__item" data-nav="qa">
+        
+            <span class="nav__label" data-i18n="navQA">问答</span>
+          </a>
+          <a href="/questions" class="nav__item" data-nav="questions">
+    
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
+          </a>
+          <a href="/notes" class="nav__item" data-nav="notes">
+           
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
+          </a>
+          <a href="/analysis" class="nav__item" data-nav="analysis">
+          
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
+          </a>
+          <a href="/study-plan" class="nav__item nav__item--active" data-nav="study-plan">
+           
+            <span class="nav__label" data-i18n="navStudyPlan">学习计划</span>
+          </a>
+          <a href="/settings" class="nav__item" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+            <span class="nav__label" data-i18n="navSettings">设置</span>
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="card">
+        <div class="card__title" data-i18n="studyPlanTitle">📅 学习计划生成</div>
+        <p class="card__lead" data-i18n="studyPlanLead">根据你的水平和目标，生成个性化周学习计划</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" data-i18n="studyPlanTopic">学习主题</label>
+            <input type="text" id="spTopic" class="input" placeholder="如：python, machine_learning, javascript" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="studyPlanLevel">用户水平</label>
+            <select id="spLevel" class="select">
+              <option value="beginner" data-i18n="levelBeginner">初级</option>
+              <option value="intermediate" selected data-i18n="levelIntermediate">中级</option>
+              <option value="advanced" data-i18n="levelAdvanced">高级</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="studyPlanDuration">学习周期（周）</label>
+            <input type="number" id="spDuration" class="input" value="4" min="1" max="52" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="studyPlanHours">每天学习小时数</label>
+            <input type="number" id="spHours" class="input" value="2" min="1" max="24" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="studyPlanStyle">学习风格</label>
+            <select id="spStyle" class="select">
+              <option value="hands-on" data-i18n="styleHandsOn">实践动手</option>
+              <option value="visual" data-i18n="styleVisual">视觉图形</option>
+              <option value="reading" data-i18n="styleReading">阅读理解</option>
+              <option value="auditory" data-i18n="styleAuditory">视听听力</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="studyPlanKnown">已掌握主题（逗号分隔）</label>
+          <input type="text" id="spKnown" class="input" placeholder="如：functions, lists, loops" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="studyPlanWeak">薄弱主题（逗号分隔）</label>
+          <input type="text" id="spWeak" class="input" placeholder="如：oop, decorators" />
+        </div>
+
+        <div class="form-group">
+          <input type="checkbox" id="spUseKb" class="checkbox" />
+          <label for="spUseKb" data-i18n="studyPlanUseKb">结合知识库检索（扩展相关内容）</label>
+        </div>
+
+        <div class="form-group" id="spKbRow" style="display:none;">
+          <label class="form-label" data-i18n="studyPlanKbQuery">检索用语（可选，留空则用主题）</label>
+          <input type="text" id="spKbQuery" class="input" placeholder="输入关键词扩展学习内容" />
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn--primary" id="btnGenStudyPlan" data-i18n="btnGenStudyPlan">生成学习计划</button>
+          <button class="btn" id="btnClearStudyPlan" data-i18n="btnClear">清空</button>
+        </div>
+
+        <div id="studyPlanOut" class="study-plan-output"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
