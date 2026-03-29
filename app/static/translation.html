@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/static/icon.png" type="image/png" />
+    <title>AI RAG System — 翻译助手</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
+          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+        
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+          <a href="/documents" class="nav__item" data-nav="documents">
+          
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
+          </a>
+          <a href="/qa" class="nav__item" data-nav="qa">
+          
+            <span class="nav__label" data-i18n="navQA">问答</span>
+          </a>
+          <a href="/questions" class="nav__item" data-nav="questions">
+         
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
+          </a>
+          <a href="/notes" class="nav__item" data-nav="notes">
+         
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
+          </a>
+          <a href="/analysis" class="nav__item" data-nav="analysis">
+           
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
+          </a>
+          <a href="/study-plan" class="nav__item" data-nav="study-plan">
+        
+            <span class="nav__label" data-i18n="navStudyPlan">学习计划</span>
+          </a>
+          <a href="/translation" class="nav__item nav__item--active" data-nav="translation">
+            <span class="nav__icon">🌐</span>
+           
+          </a>
+          <a href="/settings" class="nav__item" data-nav="settings">
+            <span class="nav__icon">⚙️</span>
+      
+          </a>
+        </nav>
+        <div class="header__meta">
+          <div class="langSwitch" id="langSwitch">
+            <button class="langSwitch__btn langSwitch__btn--active" data-lang="zh">中文</button>
+            <button class="langSwitch__btn" data-lang="en">EN</button>
+          </div>
+          <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
+          <span class="pill" id="apiBasePill"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <section class="card">
+        <div class="card__title" data-i18n="translationTitle">翻译助手</div>
+        <p class="muted toolsLead" data-i18n="translationLead">输入文本并选择翻译模式，获取高质量翻译结果。</p>
+
+        <div class="field">
+          <label class="label" data-i18n="translationMode">翻译模式</label>
+          <div class="row row--gap row--wrap" style="margin-top: 8px;">
+            <label class="radio-label">
+              <input type="radio" name="transMode" value="direct" checked />
+              <span data-i18n="transModeDirect">直接翻译</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="transMode" value="refine" />
+              <span data-i18n="transModeRefine">大模型提炼翻译</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="transMode" value="polish" />
+              <span data-i18n="transModePolish">大模型润色翻译</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row row--gap" style="margin-top: 16px;">
+          <div class="field" style="flex: 1;">
+            <label class="label" for="sourceLang" data-i18n="sourceLang">源语言</label>
+            <select id="sourceLang" class="input input--select">
+              <option value="auto" data-i18n="langAuto">自动检测</option>
+              <option value="zh" selected>中文</option>
+              <option value="en">英文</option>
+              <option value="ja">日语</option>
+              <option value="ko">韩语</option>
+              <option value="fr">法语</option>
+              <option value="de">德语</option>
+              <option value="es">西班牙语</option>
+              <option value="ru">俄语</option>
+              <option value="ar">阿拉伯语</option>
+              <option value="it">意大利语</option>
+              <option value="pt">葡萄牙语</option>
+            </select>
+          </div>
+          <div class="field" style="flex: 1;">
+            <label class="label" for="targetLang" data-i18n="targetLang">目标语言</label>
+            <select id="targetLang" class="input input--select">
+              <option value="auto">自动检测</option>
+              <option value="zh">中文</option>
+              <option value="en" selected>英文</option>
+              <option value="ja">日语</option>
+              <option value="ko">韩语</option>
+              <option value="fr">法语</option>
+              <option value="de">德语</option>
+              <option value="es">西班牙语</option>
+              <option value="ru">俄语</option>
+              <option value="ar">阿拉伯语</option>
+              <option value="it">意大利语</option>
+              <option value="pt">葡萄牙语</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 16px;">
+          <label class="label" for="sourceText" data-i18n="sourceText">待翻译文本</label>
+          <textarea id="sourceText" class="input input--query" rows="8" maxlength="50000" placeholder="输入需要翻译的文本…"></textarea>
+        </div>
+
+        <div class="row row--gap">
+          <button type="button" class="btn btn--primary" id="btnTranslate" data-i18n="btnTranslate">翻译</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="btnTranslateClear" data-i18n="btnClear">清空</button>
+        </div>
+        <div class="hint" id="translateMeta"></div>
+      </section>
+
+      <section class="card" id="translationResultCard" style="display: none;">
+        <div class="card__title" data-i18n="translationResult">翻译结果</div>
+        <div class="hint" id="translateResultMeta"></div>
+        <div class="mdActions" id="translateActions" hidden>
+          <div class="mdActions__left">
+            <button type="button" class="btn btn--ghost btn--sm" id="btnTransView" data-i18n="btnPreview">预览</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnTransRaw" data-i18n="btnRaw">源码</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnTransCopy" data-i18n="btnCopy">复制</button>
+          </div>
+        </div>
+        <div class="mdPreview" id="transPreview" hidden></div>
+        <pre class="mdOut" id="transOut" hidden></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__row">
+        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/app.js" defer></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const $ = (id) => document.getElementById(id);
+        const apiBase = localStorage.getItem("API_BASE") || location.origin;
+
+        let currentTranslation = "";
+
+        function showToast(msg) {
+          const toast = $("toast");
+          toast.textContent = msg;
+          toast.classList.add("toast--show");
+          setTimeout(() => toast.classList.remove("toast--show"), 2500);
+        }
+
+        function getSelectedMode() {
+          const radios = document.getElementsByName("transMode");
+          for (const r of radios) {
+            if (r.checked) return r.value;
+          }
+          return "direct";
+        }
+
+        async function doTranslate() {
+          const sourceText = $("sourceText").value.trim();
+          if (!sourceText) {
+            showToast(I18N[currentLang]?.emptySourceText || "请输入待翻译文本");
+            return;
+          }
+
+          const sourceLang = $("sourceLang").value;
+          const targetLang = $("targetLang").value;
+          const mode = getSelectedMode();
+
+          $("translateMeta").textContent = I18N[currentLang]?.translating || "正在翻译…";
+          $("btnTranslate").disabled = true;
+
+          try {
+            const res = await fetch(`${apiBase}/tools/translate`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                text: sourceText,
+                source_lang: sourceLang,
+                target_lang: targetLang,
+                mode: mode,
+              }),
+            });
+
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              throw new Error(err.detail || `HTTP ${res.status}`);
+            }
+
+            const data = await res.json();
+            currentTranslation = data.translation || "";
+
+            const resultCard = $("translationResultCard");
+            resultCard.style.display = "block";
+
+            $("transOut").textContent = currentTranslation;
+            $("transOut").hidden = false;
+            $("transPreview").hidden = true;
+            $("translateActions").hidden = false;
+
+            const meta = I18N[currentLang];
+            const modeLabel = data.mode_label || mode;
+            $("translateResultMeta").textContent = `${meta.chars || "字符"}: ${data.original_length} → ${data.translated_length} | ${meta.mode || "模式"}: ${modeLabel}`;
+
+            $("translateMeta").textContent = meta.translationDone || "翻译完成";
+          } catch (e) {
+            $("translateMeta").textContent = "翻译失败: " + e.message;
+            showToast("翻译失败: " + e.message);
+          } finally {
+            $("btnTranslate").disabled = false;
+          }
+        }
+
+        $("btnTranslate")?.addEventListener("click", doTranslate);
+
+        $("btnTranslateClear")?.addEventListener("click", () => {
+          $("sourceText").value = "";
+          $("translateMeta").textContent = "";
+          $("translateResultMeta").textContent = "";
+          $("transOut").textContent = "";
+          $("transOut").hidden = true;
+          $("translateActions").hidden = true;
+          $("translationResultCard").style.display = "none";
+          currentTranslation = "";
+        });
+
+        $("btnTransView")?.addEventListener("click", () => {
+          $("transPreview").innerHTML = renderMarkdown(currentTranslation);
+          $("transPreview").hidden = false;
+          $("transOut").hidden = true;
+        });
+
+        $("btnTransRaw")?.addEventListener("click", () => {
+          $("transOut").hidden = false;
+          $("transPreview").hidden = true;
+        });
+
+        $("btnTransCopy")?.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(currentTranslation);
+            showToast(I18N[currentLang]?.copiedOk || "已复制");
+          } catch {
+            showToast(I18N[currentLang]?.copiedFail || "复制失败");
+          }
+        });
+
+        function renderMarkdown(text) {
+          return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/^#{1,6}\s+(.+)$/gm, "<h$1>$1</h$1>")
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.+?)\*/g, "<em>$1</em>")
+            .replace(/`(.+?)`/g, "<code>$1</code>")
+            .replace(/^\s*[-*+]\s+(.+)$/gm, "<li>$1</li>")
+            .replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>")
+            .replace(/\n\n/g, "</p><p>")
+            .replace(/\n/g, "<br>");
+        }
+      });
+    </script>
+  </body>
+</html>

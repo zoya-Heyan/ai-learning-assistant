@@ -248,6 +248,31 @@ main { flex: 1; }
 }
 .check input { accent-color: var(--primary); transform: scale(1.1); }
 
+/* ─── Radio Label ─── */
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius);
+  background: var(--card);
+  transition: all 0.15s;
+}
+.radio-label:hover {
+  border-color: var(--primary);
+  background: var(--bg2);
+}
+.radio-label input { accent-color: var(--primary); transform: scale(1.1); }
+.radio-label:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-fade);
+  color: var(--primary);
+}
+
 /* ─── Buttons ─── */
 .btn {
   border: 1.5px solid var(--border2);

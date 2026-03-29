@@ -165,3 +165,102 @@ async def analyze_question(body: AnalyzeQuestionRequest):
 
     text = await chat_async(_ANALYSIS_SYSTEM, user_prompt, temperature=0.3)
     return {"markdown": text}
+
+
+_DIRECT_TRANSLATION_SYSTEM = """You are a professional translation assistant.
+
+Your task is to translate the input text into the target language.
+
+Requirements:
+- Accurately translate all content without omission or distortion
+- Preserve the original tone, style, and intent
+- Maintain sentence structure where reasonable
+- Use natural and fluent expressions in the target language
+- Do NOT add explanations, notes, or extra content
+
+Output only the translated text."""
+
+_REFINE_TRANSLATION_SYSTEM = """You are an expert translator specializing in concise and refined translation.
+
+Your task is to translate and refine the input text into the target language.
+
+Requirements:
+- Capture the core meaning and key information
+- Remove redundancy and unnecessary details
+- Use clear, concise, and professional language
+- Improve logical flow and readability
+- Preserve the original intent while making the expression more efficient
+
+Output only the refined translation."""
+
+_POLISH_TRANSLATION_SYSTEM = """You are a senior translation expert specializing in polishing and enhancing translations.
+
+Your task is to improve the given translated text.
+
+Requirements:
+- Preserve the original meaning exactly
+- Enhance fluency, elegance, and readability
+- Optimize sentence structure and word choice
+- Ensure consistency in tone and style
+- Use natural, idiomatic expressions in the target language
+
+Output only the polished translation."""
+
+
+class TranslationRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=50000, description="待翻译文本")
+    source_lang: str = Field(default="auto", description="源语言，如 en, zh, ja, auto 等")
+    target_lang: str = Field(default="zh", description="目标语言，如 en, zh, ja, ko, fr, de 等")
+    mode: str = Field(default="direct", description="翻译模式：direct(直接翻译), refine(提炼翻译), polish(润色翻译)")
+
+
+_LANG_NAMES = {
+    "auto": "自动检测",
+    "zh": "中文",
+    "en": "英文",
+    "ja": "日语",
+    "ko": "韩语",
+    "fr": "法语",
+    "de": "德语",
+    "es": "西班牙语",
+    "ru": "俄语",
+    "ar": "阿拉伯语",
+    "it": "意大利语",
+    "pt": "葡萄牙语",
+}
+
+
+@router.post("/translate")
+async def translate_text(body: TranslationRequest):
+    if body.mode not in ("direct", "refine", "polish"):
+        raise HTTPException(status_code=400, detail="mode must be one of: direct, refine, polish")
+
+    system_prompt = {
+        "direct": _DIRECT_TRANSLATION_SYSTEM,
+        "refine": _REFINE_TRANSLATION_SYSTEM,
+        "polish": _POLISH_TRANSLATION_SYSTEM,
+    }.get(body.mode, _DIRECT_TRANSLATION_SYSTEM)
+
+    mode_labels = {
+        "direct": "直接翻译",
+        "refine": "大模型提炼翻译",
+        "polish": "大模型润色翻译",
+    }
+
+    user_prompt = f"""请将以下{_LANG_NAMES.get(body.source_lang, body.source_lang)}文本翻译为{_LANG_NAMES.get(body.target_lang, body.target_lang)}（{mode_labels.get(body.mode)}模式）：
+
+【待翻译文本】
+{body.text}
+
+请直接输出翻译结果，不要添加任何解释、注释或格式标记。"""
+
+    text = await chat_async(system_prompt, user_prompt, temperature=0.3)
+    return {
+        "translation": text,
+        "source_lang": body.source_lang,
+        "target_lang": body.target_lang,
+        "mode": body.mode,
+        "mode_label": mode_labels.get(body.mode, body.mode),
+        "original_length": len(body.text),
+        "translated_length": len(text),
+    }

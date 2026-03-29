@@ -71,3 +71,10 @@ def study_plan_page():
     if sp.exists():
         return FileResponse(sp)
     return {"message": "Study Plan page"}
+
+@app.get("/translation")
+def translation_page():
+    tr = STATIC_DIR / "translation.html"
+    if tr.exists():
+        return FileResponse(tr)
+    return {"message": "Translation page"}
