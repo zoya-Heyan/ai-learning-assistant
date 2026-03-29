@@ -117,6 +117,11 @@ const I18N = {
     docRowDelete: "删除",
     noModification: "未做任何修改",
     updated: "已更新",
+    editDocTitle: "编辑文档",
+    editTitleLabel: "标题",
+    editContentLabel: "内容",
+    btnSave: "保存",
+    btnCancel: "取消",
     docsLoaded: "加载文档",
     indexStats: "Index",
     totalDocs: "Total",
@@ -273,6 +278,11 @@ const I18N = {
     docRowDelete: "Delete",
     noModification: "No modifications made",
     updated: "Updated",
+    editDocTitle: "Edit Document",
+    editTitleLabel: "Title",
+    editContentLabel: "Content",
+    btnSave: "Save",
+    btnCancel: "Cancel",
     docsLoaded: "Documents loaded",
     indexStats: "Index",
     totalDocs: "Total",
@@ -691,17 +701,34 @@ function initSettings() {
 
   async function editDoc(id) {
     const doc = await api(`/documents/${id}`);
-    const newTitle = window.prompt("编辑标题（留空不修改）", doc.title || "");
-    if (newTitle === null) return;
-    const newContent = window.prompt("编辑内容（留空不修改）", doc.content || "");
-    if (newContent === null) return;
-    const body = {};
-    if (newTitle.trim() && newTitle.trim() !== doc.title) body.title = newTitle.trim();
-    if (newContent.trim() && newContent !== doc.content) body.content = newContent;
-    if (!Object.keys(body).length) { toast(t("noModification"), "ok"); return; }
-    await api(`/documents/${id}`, { method: "PUT", body });
-    toast(`${t("updated")}: #${id}`, "ok");
-    await loadDocs();
+    const dialog = $("docEditDialog");
+    if (!dialog) { return; }
+    $("docEditTitle").textContent = t("editDocTitle");
+    $("editTitleLabel").textContent = t("editTitleLabel");
+    $("editContentLabel").textContent = t("editContentLabel");
+    $("editTitle").value = doc.title || "";
+    $("editContent").value = doc.content || "";
+    const saveBtn = $("btnSaveEdit");
+    const cancelBtn = $("btnCancelEdit");
+    const closeBtn = $("docEditClose");
+    const handleSave = async () => {
+      const newTitle = $("editTitle").value;
+      const newContent = $("editContent").value;
+      const body = {};
+      if (newTitle.trim() && newTitle.trim() !== doc.title) body.title = newTitle.trim();
+      if (newContent.trim() && newContent !== doc.content) body.content = newContent;
+      if (!Object.keys(body).length) { toast(t("noModification"), "ok"); return; }
+      await api(`/documents/${id}`, { method: "PUT", body });
+      toast(`${t("updated")}: #${id}`, "ok");
+      dialog.close();
+      await loadDocs();
+    };
+    const handleCancel = () => dialog.close();
+    saveBtn.onclick = handleSave;
+    cancelBtn.onclick = handleCancel;
+    closeBtn.onclick = handleCancel;
+    dialog.onkeydown = (e) => { if (e.key === "Escape") handleCancel(); };
+    dialog.showModal();
   }
 
   async function createDoc() {
@@ -839,17 +866,34 @@ function initDocuments() {
 
   async function editDoc(id) {
     const doc = await api(`/documents/${id}`);
-    const newTitle = window.prompt("编辑标题（留空不修改）", doc.title || "");
-    if (newTitle === null) return;
-    const newContent = window.prompt("编辑内容（留空不修改）", doc.content || "");
-    if (newContent === null) return;
-    const body = {};
-    if (newTitle.trim() && newTitle.trim() !== doc.title) body.title = newTitle.trim();
-    if (newContent.trim() && newContent !== doc.content) body.content = newContent;
-    if (!Object.keys(body).length) { toast(t("noModification"), "ok"); return; }
-    await api(`/documents/${id}`, { method: "PUT", body });
-    toast(`${t("updated")}: #${id}`, "ok");
-    await loadDocs();
+    const dialog = $("docEditDialog");
+    if (!dialog) { return; }
+    $("docEditTitle").textContent = t("editDocTitle");
+    $("editTitleLabel").textContent = t("editTitleLabel");
+    $("editContentLabel").textContent = t("editContentLabel");
+    $("editTitle").value = doc.title || "";
+    $("editContent").value = doc.content || "";
+    const saveBtn = $("btnSaveEdit");
+    const cancelBtn = $("btnCancelEdit");
+    const closeBtn = $("docEditClose");
+    const handleSave = async () => {
+      const newTitle = $("editTitle").value;
+      const newContent = $("editContent").value;
+      const body = {};
+      if (newTitle.trim() && newTitle.trim() !== doc.title) body.title = newTitle.trim();
+      if (newContent.trim() && newContent !== doc.content) body.content = newContent;
+      if (!Object.keys(body).length) { toast(t("noModification"), "ok"); return; }
+      await api(`/documents/${id}`, { method: "PUT", body });
+      toast(`${t("updated")}: #${id}`, "ok");
+      dialog.close();
+      await loadDocs();
+    };
+    const handleCancel = () => dialog.close();
+    saveBtn.onclick = handleSave;
+    cancelBtn.onclick = handleCancel;
+    closeBtn.onclick = handleCancel;
+    dialog.onkeydown = (e) => { if (e.key === "Escape") handleCancel(); };
+    dialog.showModal();
   }
 
   async function createDoc() {
