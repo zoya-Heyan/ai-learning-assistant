@@ -144,7 +144,7 @@ async def generate_markdown_notes(request: Request, body: MarkdownNotesRequest):
 【检索到的资料片段】
 {context}
 
-请生成结构化的学习笔记（Markdown）。"""
+请生成结构化的学习笔记（Markdown）（可引用检索到的资料片段或推荐学习的网站）。"""
 
     text = await chat_async(_NOTES_SYSTEM, user_prompt, temperature=0.3)
     return {

@@ -980,13 +980,14 @@ function initQuestions() {
     return (md || "").replace(/```(?:markdown|md)?\n?[\s\S]*?```/gi, "").replace(/^```\s*$/gm, "").trim();
   }
 
-  function renderMdPreview(previewId, outId, md) {
+  async function renderMdPreview(previewId, outId, md) {
     const preview = $(previewId);
     const out = $(outId);
     if (!md || !md.trim()) { preview.innerHTML = `<span class="muted">—</span>`; return; }
     const clean = stripMd(md);
     if (typeof marked !== "undefined") {
-      preview.innerHTML = marked.parse(clean);
+      const html = await Promise.resolve(marked.parse(clean));
+      preview.innerHTML = html;
       preview.hidden = false;
       out.hidden = true;
     } else {
@@ -1030,6 +1031,7 @@ function initQuestions() {
       typewriter($("wrongOut"), questionsMd);
       renderMdPreview("wrongPreview", "wrongOut", questionsMd);
       $("wrongActions").hidden = false;
+      setQuestionsView("preview");
       let meta = t("questionsDone");
       if (use_knowledge_base) meta += ` · ${t("kbHits")} ${payload.kb_hits ?? 0}`;
       $("wrongMeta").textContent = meta;
@@ -1084,13 +1086,14 @@ function initNotes() {
     return (md || "").replace(/```(?:markdown|md)?\n?[\s\S]*?```/gi, "").replace(/^```\s*$/gm, "").trim();
   }
 
-  function renderMdPreview(previewId, outId, md) {
+  async function renderMdPreview(previewId, outId, md) {
     const preview = $(previewId);
     const out = $(outId);
     if (!md || !md.trim()) { preview.innerHTML = `<span class="muted">—</span>`; return; }
     const clean = stripMd(md);
     if (typeof marked !== "undefined") {
-      preview.innerHTML = marked.parse(clean);
+      const html = await Promise.resolve(marked.parse(clean));
+      preview.innerHTML = html;
       preview.hidden = false;
       out.hidden = true;
     } else {
@@ -1227,13 +1230,14 @@ function initAnalysis() {
     return (md || "").replace(/```(?:markdown|md)?\n?[\s\S]*?```/gi, "").replace(/^```\s*$/gm, "").trim();
   }
 
-  function renderMdPreview(previewId, outId, md) {
+  async function renderMdPreview(previewId, outId, md) {
     const preview = $(previewId);
     const out = $(outId);
     if (!md || !md.trim()) { preview.innerHTML = `<span class="muted">—</span>`; return; }
     const clean = stripMd(md);
     if (typeof marked !== "undefined") {
-      preview.innerHTML = marked.parse(clean);
+      const html = await Promise.resolve(marked.parse(clean));
+      preview.innerHTML = html;
       preview.hidden = false;
       out.hidden = true;
     } else {
@@ -1331,6 +1335,8 @@ function init() {
     initNotes();
   } else if (path === "/analysis") {
     initAnalysis();
+  } else if (path === "/study-plan") {
+    initStudyPlan();
   } else if (path === "/settings") {
     initSettings();
   }
