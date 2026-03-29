@@ -305,14 +305,23 @@ function applyI18n(lang) {
 }
 
 function applyTheme(theme) {
+  let styleId = "custom-cursor-style";
+  let styleEl = document.getElementById(styleId);
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    document.head.appendChild(styleEl);
+  }
   if (theme === "dark") {
     document.documentElement.setAttribute("data-theme", "dark");
     $("btnTheme").textContent = "☀️";
     $("btnTheme").setAttribute("title", t(currentLang === "zh" ? "switchLight" : "switchLightEn"));
+    styleEl.textContent = `*, *::before, *::after { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%23667eea' d='M16 4 L12 0 L14 8 L6 10 L10 16 L8 28 L16 24 L24 28 L22 16 L26 10 L18 8 L20 0 Z'/%3E%3Ccircle fill='%23ffd700' cx='12' cy='14' r='2'/%3E%3Ccircle fill='%23ffd700' cx='20' cy='14' r='2'/%3E%3C/svg%3E") 16 16, auto !important; }`;
   } else {
     document.documentElement.removeAttribute("data-theme");
     $("btnTheme").textContent = "🌙";
     $("btnTheme").setAttribute("title", t(currentLang === "zh" ? "switchDark" : "switchDarkEn"));
+    styleEl.textContent = `*, *::before, *::after { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%234a7c59' d='M16 2 Q26 8 26 18 Q26 28 16 30 Q6 28 6 18 Q6 8 16 2 Z'/%3E%3Cpath fill='none' stroke='%233a6147' stroke-width='1.5' d='M16 6 L16 26 M10 12 Q16 16 22 12'/%3E%3C/svg%3E") 16 16, auto !important; }`;
   }
   localStorage.setItem("THEME", theme);
 }
