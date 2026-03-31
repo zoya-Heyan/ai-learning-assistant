@@ -11,45 +11,47 @@
     <header class="header">
       <div class="container header__row">
         <div class="brand">
-          <div class="brand__title" data-i18n="brandTitle">AI RAG System</div>
-          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+          <div class="brand__icon">AI</div>
+          <div>
+            <div class="brand__title" data-i18n="brandTitle">Intelligent Learning Assistant</div>
+            <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+          </div>
         </div>
         <nav class="nav" aria-label="Main navigation">
           <a href="/" class="nav__item" data-nav="home">
-     
+            <span class="nav__icon">🏠</span>
             <span class="nav__label" data-i18n="navHome">首页</span>
           </a>
           <a href="/documents" class="nav__item" data-nav="documents">
-      
+            <span class="nav__icon">📄</span>
             <span class="nav__label" data-i18n="navDocuments">文档</span>
           </a>
           <a href="/qa" class="nav__item" data-nav="qa">
-        
+            <span class="nav__icon">💬</span>
             <span class="nav__label" data-i18n="navQA">问答</span>
           </a>
           <a href="/questions" class="nav__item" data-nav="questions">
-    
+            <span class="nav__icon">📝</span>
             <span class="nav__label" data-i18n="navQuestions">习题</span>
           </a>
           <a href="/notes" class="nav__item" data-nav="notes">
-           
+            <span class="nav__icon">📓</span>
             <span class="nav__label" data-i18n="navNotes">笔记</span>
           </a>
           <a href="/analysis" class="nav__item" data-nav="analysis">
-          
+            <span class="nav__icon">🔍</span>
             <span class="nav__label" data-i18n="navAnalysis">解析</span>
           </a>
           <a href="/study-plan" class="nav__item nav__item--active" data-nav="study-plan">
             <span class="nav__icon">📅</span>
-           
+            <span class="nav__label" data-i18n="navStudyPlan">学习计划</span>
           </a>
           <a href="/translation" class="nav__item" data-nav="translation">
-       
-              <span class="nav__label" data-i18n="navTranslation">翻译</span>
+            <span class="nav__icon">🌐</span>
+            <span class="nav__label" data-i18n="navTranslation">翻译</span>
           </a>
           <a href="/settings" class="nav__item" data-nav="settings">
             <span class="nav__icon">⚙️</span>
-          
           </a>
         </nav>
         <div class="header__meta">
@@ -58,7 +60,7 @@
             <button class="langSwitch__btn" data-lang="en">EN</button>
           </div>
           <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
-          <span class="pill" id="apiBasePill"></span>
+          <span class="pill" id="onlineTimer">00:00:00</span>
         </div>
       </div>
     </header>

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="authTitle">登录 / 注册</title>
+    <link rel="icon" href="/static/icon.png" type="image/png" />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__row">
+        <div class="brand">
+          <div class="brand__icon">AI</div>
+          <div>
+            <div class="brand__title" data-i18n="brandTitle">Intelligent Learning Assistant</div>
+            <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" class="nav__item" data-nav="home">
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="auth-container">
+        <div class="auth-tabs">
+          <button class="auth-tab auth-tab--active" id="tabLogin" data-i18n="tabLogin">登录</button>
+          <button class="auth-tab" id="tabRegister" data-i18n="tabRegister">注册</button>
+        </div>
+
+        <div class="auth-content">
+          <form id="loginForm" class="auth-form">
+            <div class="field">
+              <label class="label" for="loginUsername" data-i18n="username">用户名</label>
+              <input type="text" id="loginUsername" class="input" required minlength="3" maxlength="50" />
+            </div>
+            <div class="field">
+              <label class="label" for="loginPassword" data-i18n="password">密码</label>
+              <input type="password" id="loginPassword" class="input" required minlength="6" maxlength="100" />
+            </div>
+            <button type="submit" class="btn btn--primary btn--block" id="btnLogin" data-i18n="btnLogin">登录</button>
+          </form>
+
+          <form id="registerForm" class="auth-form" style="display: none;">
+            <div class="field">
+              <label class="label" for="regUsername" data-i18n="username">用户名</label>
+              <input type="text" id="regUsername" class="input" required minlength="3" maxlength="50" />
+            </div>
+            <div class="field">
+              <label class="label" for="regEmail" data-i18n="email">邮箱</label>
+              <input type="email" id="regEmail" class="input" required />
+            </div>
+            <div class="field">
+              <label class="label" for="regPassword" data-i18n="password">密码</label>
+              <input type="password" id="regPassword" class="input" required minlength="6" maxlength="100" />
+            </div>
+            <div class="field">
+              <label class="label" for="regConfirmPassword" data-i18n="confirmPassword">确认密码</label>
+              <input type="password" id="regConfirmPassword" class="input" required minlength="6" maxlength="100" />
+            </div>
+            <button type="submit" class="btn btn--primary btn--block" id="btnRegister" data-i18n="btnRegister">注册</button>
+          </form>
+
+          <div id="authMessage" class="auth-message"></div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      if (localStorage.getItem("token") && localStorage.getItem("username")) {
+        window.location.href = "/";
+      }
+
+      const I18N_AUTH = {
+        zh: {
+          authTitle: "登录 / 注册",
+          tabLogin: "登录",
+          tabRegister: "注册",
+          username: "用户名",
+          password: "密码",
+          confirmPassword: "确认密码",
+          email: "邮箱",
+          btnLogin: "登录",
+          btnRegister: "注册",
+          loginSuccess: "登录成功！正在跳转…",
+          registerSuccess: "注册成功！请登录。",
+          passwordMismatch: "两次密码输入不一致",
+          loginError: "登录失败",
+          registerError: "注册失败",
+          navHome: "首页",
+        },
+        en: {
+          authTitle: "Login / Register",
+          tabLogin: "Login",
+          tabRegister: "Register",
+          username: "Username",
+          password: "Password",
+          confirmPassword: "Confirm Password",
+          email: "Email",
+          btnLogin: "Login",
+          btnRegister: "Register",
+          loginSuccess: "Login successful! Redirecting…",
+          registerSuccess: "Registration successful! Please login.",
+          passwordMismatch: "Passwords do not match",
+          loginError: "Login failed",
+          registerError: "Registration failed",
+          navHome: "Home",
+        }
+      };
+
+      function tAuth(key) {
+        return (I18N_AUTH[currentLang]?.[key]) || (I18N_AUTH.zh[key]) || key;
+      }
+
+      function applyI18nAuth() {
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          const txt = tAuth(key);
+          if (txt !== key) el.textContent = txt;
+        });
+      }
+
+      $("tabLogin").addEventListener("click", () => {
+        $("tabLogin").classList.add("auth-tab--active");
+        $("tabRegister").classList.remove("auth-tab--active");
+        $("loginForm").style.display = "flex";
+        $("registerForm").style.display = "none";
+        $("authMessage").textContent = "";
+      });
+
+      $("tabRegister").addEventListener("click", () => {
+        $("tabRegister").classList.add("auth-tab--active");
+        $("tabLogin").classList.remove("auth-tab--active");
+        $("loginForm").style.display = "none";
+        $("registerForm").style.display = "flex";
+        $("authMessage").textContent = "";
+      });
+
+      $("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = $("loginUsername").value;
+        const password = $("loginPassword").value;
+        const btn = $("btnLogin");
+        btn.disabled = true;
+        btn.textContent = "...";
+
+        try {
+          const formData = new FormData();
+          formData.append("username", username);
+          formData.append("password", password);
+
+          const loginUrl = state.apiBase + (state.apiBase.endsWith("/") ? "auth/login" : "/auth/login");
+          const res = await fetch(loginUrl, {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.detail || (currentLang === "zh" ? "登录失败" : "Login failed"));
+          }
+
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("username", username);
+
+          $("authMessage").textContent = tAuth("loginSuccess");
+          $("authMessage").className = "auth-message auth-message--ok";
+          setTimeout(() => { window.location.href = "/"; }, 1000);
+        } catch (err) {
+          $("authMessage").textContent = err.message;
+          $("authMessage").className = "auth-message auth-message--error";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = tAuth("btnLogin");
+        }
+      });
+
+      $("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = $("regUsername").value;
+        const email = $("regEmail").value;
+        const password = $("regPassword").value;
+        const confirmPassword = $("regConfirmPassword").value;
+        const btn = $("btnRegister");
+
+        if (password !== confirmPassword) {
+          $("authMessage").textContent = tAuth("passwordMismatch");
+          $("authMessage").className = "auth-message auth-message--error";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "...";
+
+        try {
+          const registerUrl = state.apiBase + (state.apiBase.endsWith("/") ? "auth/register" : "/auth/register");
+          const res = await fetch(registerUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.detail || (currentLang === "zh" ? "注册失败" : "Registration failed"));
+          }
+
+          $("authMessage").textContent = tAuth("registerSuccess");
+          $("authMessage").className = "auth-message auth-message--ok";
+
+          setTimeout(() => {
+            $("tabLogin").click();
+            $("loginUsername").value = username;
+          }, 1500);
+        } catch (err) {
+          $("authMessage").textContent = err.message;
+          $("authMessage").className = "auth-message auth-message--error";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = tAuth("btnRegister");
+        }
+      });
+
+      applyI18nAuth();
+    </script>
+  </body>
+</html>

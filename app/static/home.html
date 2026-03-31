@@ -8,48 +8,51 @@
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
+    <canvas id="matrixCanvas"></canvas>
     <header class="header">
       <div class="container header__row">
         <div class="brand">
-          <div class="brand__title" data-i18n="brandTitle">Intelligent Learning Assistant</div>
-          <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+          <div class="brand__icon">AI</div>
+          <div>
+            <div class="brand__title" data-i18n="brandTitle">Intelligent Learning Assistant</div>
+            <div class="brand__subtitle" data-i18n="brandSubtitle">Documents · Vector Search · LLM Answer</div>
+          </div>
         </div>
         <nav class="nav" aria-label="Main navigation">
           <a href="#" class="nav__item nav__item--active" data-nav="home">
-              <span class="nav__icon">🏠</span>
-
+            <span class="nav__icon">🏠</span>
+            <span class="nav__label" data-i18n="navHome">首页</span>
           </a>
           <a href="/documents" class="nav__item" data-nav="documents">
-            
-            <label" data-i18n="navDocuments">文档</span>
+            <span class="nav__icon">📄</span>
+            <span class="nav__label" data-i18n="navDocuments">文档</span>
           </a>
           <a href="/qa" class="nav__item" data-nav="qa">
-           
-              <label" data-i18n="navQA">问答</span>
+            <span class="nav__icon">💬</span>
+            <span class="nav__label" data-i18n="navQA">问答</span>
           </a>
           <a href="/questions" class="nav__item" data-nav="questions">
-        
-            <label" data-i18n="navQuestions">习题</span>
+            <span class="nav__icon">📝</span>
+            <span class="nav__label" data-i18n="navQuestions">习题</span>
           </a>
           <a href="/notes" class="nav__item" data-nav="notes">
-       
-            <label" data-i18n="navNotes">笔记</span>
+            <span class="nav__icon">📓</span>
+            <span class="nav__label" data-i18n="navNotes">笔记</span>
           </a>
           <a href="/analysis" class="nav__item" data-nav="analysis">
-
-              <label" data-i18n="navAnalysis">解析</span>
+            <span class="nav__icon">🔍</span>
+            <span class="nav__label" data-i18n="navAnalysis">解析</span>
           </a>
           <a href="/study-plan" class="nav__item" data-nav="study-plan">
-
-              <label" data-i18n="navStudyPlan">学习计划</span>
+            <span class="nav__icon">📅</span>
+            <span class="nav__label" data-i18n="navStudyPlan">学习计划</span>
           </a>
           <a href="/translation" class="nav__item" data-nav="translation">
-             
-              <span class="nav__label" data-i18n="navTranslation">翻译</span>
+            <span class="nav__icon">🌐</span>
+            <span class="nav__label" data-i18n="navTranslation">翻译</span>
           </a>
           <a href="/settings" class="nav__item" data-nav="settings">
             <span class="nav__icon">⚙️</span>
-            
           </a>
         </nav>
         <div class="header__meta">
@@ -58,7 +61,7 @@
             <button class="langSwitch__btn" data-lang="en">EN</button>
           </div>
           <button class="btn btn--icon" id="btnTheme" title="切换主题">🌙</button>
-          <span class="pill" id="apiBasePill"></span>
+          <span class="pill" id="onlineTimer">00:00:00</span>
         </div>
       </div>
     </header>
@@ -122,11 +125,46 @@
 
     <footer class="footer">
       <div class="container footer__row">
-        <div class="muted" data-i18n="footerTech">RAG system（Qwen 7B + bge-small-zh）</div>
+        <div class="footer__text" data-i18n="footerTech">Powered by Qwen 7B + bge-small-zh</div>
       </div>
     </footer>
 
     <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+    <script>
+      const canvas = document.getElementById('matrixCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+      const fontSize = 14;
+      const columns = canvas.width / fontSize;
+      const drops = Array(Math.floor(columns)).fill(1);
+      function drawMatrix() {
+        if (document.body.hasAttribute('data-theme') && document.body.getAttribute('data-theme') === 'dark') {
+          ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = '#00ff41';
+          ctx.font = fontSize + 'px monospace';
+          drops.forEach((y, i) => {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            const x = i * fontSize;
+            ctx.fillStyle = `hsl(142, 100%, ${50 + Math.random() * 20}%)`;
+            ctx.fillText(char, x, y * fontSize);
+            if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+          });
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drops.forEach((_, i) => { drops[i] = 1; });
+        }
+        requestAnimationFrame(drawMatrix);
+      }
+      drawMatrix();
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    </script>
     <script src="/static/app.js" defer></script>
   </body>
 </html>

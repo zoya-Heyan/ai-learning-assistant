@@ -128,6 +128,7 @@ const I18N = {
     draftRestored: "（上次生成的笔记已自动恢复）",
     switchLight: "切换到浅色模式",
     switchDark: "切换到深色模式",
+    switchMatrix: "切换到黑客帝国模式",
     studyPlanTitle: "📅 学习计划生成",
     studyPlanLead: "根据你的水平和目标，生成个性化周学习计划",
     studyPlanTopic: "学习主题",
@@ -289,6 +290,7 @@ const I18N = {
     draftRestored: "(Last generated notes auto-restored)",
     switchLight: "Switch to light mode",
     switchDark: "Switch to dark mode",
+    switchMatrix: "Switch to Matrix mode",
     studyPlanTitle: "📅 Study Plan Generator",
     studyPlanLead: "Generate a personalized weekly study plan based on your level and goals",
     studyPlanTopic: "Study Topic",
@@ -360,9 +362,14 @@ function applyTheme(theme) {
   }
   if (theme === "dark") {
     document.documentElement.setAttribute("data-theme", "dark");
+    $("btnTheme").textContent = "🟢";
+    $("btnTheme").setAttribute("title", t(currentLang === "zh" ? "switchMatrix" : "switchMatrixEn"));
+    styleEl.textContent = `*, *::before, *::after { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%23667eea' d='M16 4 L12 0 L14 8 L6 10 L10 16 L8 28 L16 24 L24 28 L22 16 L26 10 L18 8 L20 0 Z'/%3E%3Ccircle fill='%23ffd700' cx='12' cy='14' r='2'/%3E%3Ccircle fill='%23ffd700' cx='20' cy='14' r='2'/%3E%3C/svg%3E") 16 16, auto !important; }`;
+  } else if (theme === "matrix") {
+    document.documentElement.setAttribute("data-theme", "matrix");
     $("btnTheme").textContent = "☀️";
     $("btnTheme").setAttribute("title", t(currentLang === "zh" ? "switchLight" : "switchLightEn"));
-    styleEl.textContent = `*, *::before, *::after { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%23667eea' d='M16 4 L12 0 L14 8 L6 10 L10 16 L8 28 L16 24 L24 28 L22 16 L26 10 L18 8 L20 0 Z'/%3E%3Ccircle fill='%23ffd700' cx='12' cy='14' r='2'/%3E%3Ccircle fill='%23ffd700' cx='20' cy='14' r='2'/%3E%3C/svg%3E") 16 16, auto !important; }`;
+    styleEl.textContent = `*, *::before, *::after { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%2300ff41' d='M16 4 L12 0 L14 8 L6 10 L10 16 L8 28 L16 24 L24 28 L22 16 L26 10 L18 8 L20 0 Z'/%3E%3Ccircle fill='%2300ff41' cx='12' cy='14' r='2'/%3E%3Ccircle fill='%2300ff41' cx='20' cy='14' r='2'/%3E%3C/svg%3E") 16 16, auto !important; }`;
   } else {
     document.documentElement.removeAttribute("data-theme");
     $("btnTheme").textContent = "🌙";
@@ -380,13 +387,13 @@ function initTheme() {
 
 function toggleTheme() {
   const current = document.documentElement.getAttribute("data-theme");
-  applyTheme(current === "dark" ? "light" : "dark");
+  const next = !current || current === "light" ? "dark" : current === "dark" ? "matrix" : "light";
+  applyTheme(next);
 }
 
 function setApiBase(base) {
   state.apiBase = base.replace(/\/+$/, "");
   localStorage.setItem("API_BASE", state.apiBase);
-  $("apiBasePill").textContent = state.apiBase;
 }
 
 function toast(msg, kind = "ok") {
@@ -1427,21 +1434,38 @@ function initLangSwitch() {
   });
 }
 
-function initApiBasePill() {
-  try {
-    const u = new URL(state.apiBase);
-    $("apiBasePill").textContent = u.host;
-  } catch {
-    $("apiBasePill").textContent = state.apiBase;
+let onlineTimerInterval = null;
+
+function initOnlineTimer() {
+  const el = $("onlineTimer");
+  if (!el) return;
+
+  let startTime = sessionStorage.getItem("onlineTimerStart");
+  if (!startTime) {
+    startTime = Date.now();
+    sessionStorage.setItem("onlineTimerStart", startTime);
+  } else {
+    startTime = parseInt(startTime, 10);
   }
+
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const h = String(Math.floor(elapsed / 3600)).padStart(2, "0");
+    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
+    const s = String(elapsed % 60).padStart(2, "0");
+    el.textContent = `${h}:${m}:${s}`;
+  }
+
+  updateTimer();
+  if (onlineTimerInterval) clearInterval(onlineTimerInterval);
+  onlineTimerInterval = setInterval(updateTimer, 1000);
 }
 
 function init() {
   initTheme();
   applyI18n(currentLang);
   initLangSwitch();
-  setApiBase(state.apiBase);
-  initApiBasePill();
+  initOnlineTimer();
   $("btnTheme").addEventListener("click", toggleTheme);
 
   const path = location.pathname;
