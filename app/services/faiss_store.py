@@ -10,14 +10,14 @@ import json
 import os
 import threading
 import time
-from pathlib import Path
-from typing import Any
-
 import numpy as np
 
+from pathlib import Path
+from typing import Any
 from app.core.config import settings
 
 def _get_chunks_for_index():
+    """Fetch all chunks for building index (DB backend auto-switch)."""
     if settings.DATABASE_URL:
         from app.db.postgres_sync import get_all_chunks_with_document_info
         return get_all_chunks_with_document_info()
@@ -25,6 +25,7 @@ def _get_chunks_for_index():
     return get_all_chunks_with_document_info()
 
 def _get_chunks_by_doc_id(doc_id: int):
+    """Fetch chunks for a specific document."""
     if settings.DATABASE_URL:
         from app.db.postgres_sync import get_chunks_by_document_id
         return get_chunks_by_document_id(doc_id)
@@ -48,6 +49,10 @@ _last_loaded_version: float = 0.0
 
 
 def _normalize(vec: np.ndarray) -> np.ndarray:
+    """
+    Normalize a vector to unit length.
+    Used to convert inner product into cosine similarity.
+    """
     n = np.linalg.norm(vec)
     if n <= 0:
         return vec
@@ -55,6 +60,7 @@ def _normalize(vec: np.ndarray) -> np.ndarray:
 
 
 def _chunk_info_row(ch: dict[str, Any]) -> dict[str, Any]:
+    """Extract minimal metadata stored alongside FAISS index."""
     return {
         "chunk_id": ch["id"],
         "document_id": ch["document_id"],
@@ -65,7 +71,14 @@ def _chunk_info_row(ch: dict[str, Any]) -> dict[str, Any]:
 
 
 def _save_index_atomic(index: Any, chunk_infos: list[dict[str, Any]]) -> None:
-    """Write index and meta to .tmp then atomic rename; bump version file."""
+    """
+    Persist FAISS index and metadata atomically.
+
+    Strategy:
+    1. Write to temporary files
+    2. Rename to target files (atomic on most OS)
+    3. Update version timestamp
+    """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     index_tmp = INDEX_PATH.with_suffix(INDEX_PATH.suffix + ".tmp")
     meta_tmp = META_PATH.with_suffix(META_PATH.suffix + ".tmp")
@@ -81,6 +94,7 @@ def _save_index_atomic(index: Any, chunk_infos: list[dict[str, Any]]) -> None:
 
 
 def _load_version_from_disk() -> float:
+    """Read index version from disk."""
     if not VERSION_PATH.exists():
         return 0.0
     try:
@@ -90,6 +104,14 @@ def _load_version_from_disk() -> float:
 
 
 def build_index_from_db() -> bool:
+    """
+    Build FAISS index from database.
+
+    Strategy:
+    - Normalize vectors (cosine similarity)
+    - Use IVF for large datasets
+    - Use FlatIP for small datasets
+    """
     global _index, _chunk_infos, _last_loaded_version
     if faiss is None:
         return False
@@ -189,13 +211,10 @@ def add_chunks_to_index(doc_id: int) -> bool:
         norms = np.where(norms == 0, 1.0, norms)
         vectors = (vectors / norms).astype(np.float32)
 
-        # Ensure we have a trained index. If没有索引则回退到全量重建（会根据数据规模选择 IVF/Flat）。
         if _index is None or len(_chunk_infos) == 0:
-            # 尝试从磁盘加载；若仍无则全量重建
             if not load_index_from_disk():
                 return build_index_from_db()
 
-        # 追加向量到现有索引（IVF / Flat 均支持 add）
         _index.add(vectors)
         _chunk_infos.extend(_chunk_info_row(c) for c in chunks)
         _save_index_atomic(_index, _chunk_infos)
@@ -225,5 +244,9 @@ def search(query_embedding: list[float], top_k: int) -> list[tuple[dict[str, Any
 def get_index_stats() -> dict[str, Any]:
     with _lock:
         if _index is None:
-            return {"ready": False, "ntotal": 0, "version": _last_loaded_version}
+            return {
+                "ready": False,
+                "ntotal": 0,
+                "version": _last_loaded_version
+            }
         return {"ready": True, "ntotal": _index.ntotal, "version": _last_loaded_version}
