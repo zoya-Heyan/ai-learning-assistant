@@ -12,8 +12,8 @@ router = APIRouter()
 
 class QueryRequest(BaseModel):
     query: str
-    use_llm: bool = True  # 是否用 LLM 基于检索结果生成回答
-    top_k: int | None = Field(default=None, ge=1, le=32)  # 覆盖默认 SEARCH_TOP_K
+    use_llm: bool = True  
+    top_k: int | None = Field(default=None, ge=1, le=32)  
 
 
 @router.post("/")
